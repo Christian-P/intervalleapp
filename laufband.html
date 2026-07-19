@@ -364,7 +364,7 @@
     </div>
 
     <script>
-      const APP_VERSION = "2.0.4";
+      const APP_VERSION = "2.0.5";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
@@ -450,6 +450,8 @@
           stepType: activeStep ? activeStep.typ : "",
           stepTarget: activeStep ? activeStep.ziel : 0,
         });
+
+        updateDebugSummaryOnly();
       }
 
       function buildDebugSummaryLine() {
@@ -491,11 +493,12 @@
           Number.isInteger(candidate) && candidate >= 30 && candidate <= 220;
 
         const candidates = [];
+        candidates.push(16);
         if (Number.isInteger(preferredOffset)) {
           candidates.push(preferredOffset);
           candidates.push(preferredOffset + 1);
         }
-        candidates.push(16, value.byteLength - 1, value.byteLength - 2);
+        candidates.push(value.byteLength - 1, value.byteLength - 2);
 
         for (const position of candidates) {
           if (position >= 0 && position < value.byteLength) {
@@ -971,7 +974,10 @@
         }
 
         // 3. Herzfrequenz robust auslesen (iOS/Bluefy liefert teils andere Offsets)
-        currentHR = extractHeartRate(value, byteOffset);
+        const parsedHr = extractHeartRate(value, byteOffset);
+        if (parsedHr > 0) {
+          currentHR = parsedHr;
+        }
 
         if (debugOutput) {
           const bytes = Array.from(
