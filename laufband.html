@@ -364,13 +364,14 @@
     </div>
 
     <script>
-      const APP_VERSION = "2.0.6";
+      const APP_VERSION = "2.0.7";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
       const TREADMILL_START_COUNTDOWN_MS = 3500;
       const HEART_RATE_SERVICE_UUID = 0x180d;
       const HEART_RATE_MEASUREMENT_CHAR_UUID = 0x2a37;
+      const HEART_RATE_SERVICE_ID = "heart_rate";
 
       let bluetoothDevice = null;
       let controlPointChar = null;
@@ -492,6 +493,41 @@
           currentHR = hr;
           updateLiveMetrics();
           updateDebugSummaryOnly();
+        }
+      }
+
+      function getReadableError(error) {
+        if (!error) return "Unbekannter Fehler";
+        if (typeof error === "string") return error;
+        if (typeof error.message === "string" && error.message.trim()) {
+          return error.message;
+        }
+        if (typeof error.name === "string" && error.name.trim()) {
+          return error.name;
+        }
+        try {
+          return JSON.stringify(error);
+        } catch (jsonError) {
+          return "Unbekannter Fehler";
+        }
+      }
+
+      async function requestFtmsDevice() {
+        const baseOptions = {
+          filters: [{ services: [FTMS_SERVICE_UUID] }],
+        };
+
+        try {
+          return await navigator.bluetooth.requestDevice({
+            ...baseOptions,
+            optionalServices: [HEART_RATE_SERVICE_ID, HEART_RATE_SERVICE_UUID],
+          });
+        } catch (errorWithOptionalServices) {
+          console.warn(
+            "requestDevice mit optionalServices fehlgeschlagen, Retry ohne optionalServices:",
+            getReadableError(errorWithOptionalServices),
+          );
+          return await navigator.bluetooth.requestDevice(baseOptions);
         }
       }
 
@@ -861,10 +897,7 @@
           }
 
           txtStatus.innerText = "Suche nach Bluetooth-Geräten...";
-          bluetoothDevice = await navigator.bluetooth.requestDevice({
-            filters: [{ services: [FTMS_SERVICE_UUID] }],
-            optionalServices: [HEART_RATE_SERVICE_UUID],
-          });
+          bluetoothDevice = await requestFtmsDevice();
 
           txtStatus.innerText = "Verbinde mit GATT Server...";
           const server = await bluetoothDevice.gatt.connect();
@@ -893,7 +926,7 @@
           } catch (hrErr) {
             console.log(
               "Heart Rate Service nicht verfügbar, nutze FTMS-HR:",
-              hrErr.message,
+              getReadableError(hrErr),
             );
           }
 
@@ -947,7 +980,7 @@
           } catch (indigoErr) {
             console.log(
               "GATT Indications nicht unterstützt oder nötig:",
-              indigoErr.message,
+              getReadableError(indigoErr),
             );
           }
 
@@ -959,7 +992,7 @@
           btnStart.disabled = false;
           btnConnect.disabled = true;
         } catch (error) {
-          txtStatus.innerText = "Fehler: " + error.message;
+          txtStatus.innerText = "Fehler: " + getReadableError(error);
           console.error(error);
         }
       });
