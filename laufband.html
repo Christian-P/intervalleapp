@@ -364,7 +364,7 @@
     </div>
 
     <script>
-      const APP_VERSION = "2.0.5";
+      const APP_VERSION = "2.0.6";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
@@ -390,6 +390,9 @@
       let lastCommandedSpeedKmh = 0;
       let lastTreadmillDataTimestamp = 0;
       let dataPollInterval = null;
+      let ftmsNotifyCount = 0;
+      let ftmsReadCount = 0;
+      let lastFtmsReadError = "";
 
       // Fallback Variablen für interne Distanzberechnung
       let lastDataTime = 0;
@@ -460,7 +463,11 @@
           0,
           Math.round((Date.now() - lastTreadmillDataTimestamp) / 1000),
         );
-        return `Summary: Trackpoints=${trackpoints.length} | HR erkannt=${hrDetected} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s`;
+        const ftmsTotal = ftmsNotifyCount + ftmsReadCount;
+        const readError = lastFtmsReadError
+          ? ` | ReadErr=${lastFtmsReadError}`
+          : "";
+        return `Summary: Trackpoints=${trackpoints.length} | HR erkannt=${hrDetected} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s | FTMS notify/read=${ftmsNotifyCount}/${ftmsReadCount} (total ${ftmsTotal})${readError}`;
       }
 
       function updateDebugSummaryOnly() {
@@ -532,15 +539,17 @@
 
         dataPollInterval = setInterval(async () => {
           if (!treadmillDataChar) return;
-          const noRecentPacket = Date.now() - lastTreadmillDataTimestamp > 3000;
-          if (!noRecentPacket) return;
           try {
             const value = await treadmillDataChar.readValue();
+            ftmsReadCount++;
+            lastFtmsReadError = "";
             processTreadmillValue(value, "read");
           } catch (error) {
             // Einige Geräte erlauben kein readValue auf Notify-Characteristics.
+            lastFtmsReadError = error?.message || "read failed";
+            updateDebugSummaryOnly();
           }
-        }, 1200);
+        }, 1000);
       }
 
       function parseWorkoutSteps() {
@@ -854,6 +863,7 @@
           txtStatus.innerText = "Suche nach Bluetooth-Geräten...";
           bluetoothDevice = await navigator.bluetooth.requestDevice({
             filters: [{ services: [FTMS_SERVICE_UUID] }],
+            optionalServices: [HEART_RATE_SERVICE_UUID],
           });
 
           txtStatus.innerText = "Verbinde mit GATT Server...";
@@ -901,6 +911,19 @@
             "characteristicvaluechanged",
             handleTreadmillData,
           );
+
+          // Initiales read direkt nach dem Verbinden erhöht die Chance,
+          // auf iOS/Bluefy früh ein erstes FTMS-Paket zu erhalten.
+          try {
+            const initialValue = await treadmillDataChar.readValue();
+            ftmsReadCount++;
+            lastFtmsReadError = "";
+            processTreadmillValue(initialValue, "read-initial");
+          } catch (initialReadError) {
+            lastFtmsReadError =
+              initialReadError?.message || "initial read failed";
+          }
+
           lastTreadmillDataTimestamp = Date.now();
           startDataPollingFallback();
 
@@ -943,6 +966,9 @@
 
       function processTreadmillValue(value, source = "notify") {
         if (value.byteLength < 4) return;
+        if (source === "notify") {
+          ftmsNotifyCount++;
+        }
         lastTreadmillDataTimestamp = Date.now();
 
         const flags = value.getUint16(0, true);
