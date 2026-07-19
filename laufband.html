@@ -364,7 +364,7 @@
     </div>
 
     <script>
-      const APP_VERSION = "2.0.8";
+      const APP_VERSION = "2.0.9";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
@@ -392,10 +392,14 @@
       let lastCommandedSpeedKmh = 0;
       let lastTreadmillDataTimestamp = 0;
       let dataPollInterval = null;
+      let hrPollInterval = null;
       let ftmsNotifyCount = 0;
       let ftmsReadCount = 0;
       let lastFtmsReadError = "";
       let lastTelemetrySource = "none";
+      let hrNotifyCount = 0;
+      let hrReadCount = 0;
+      let lastHrReadError = "";
 
       // Fallback Variablen für interne Distanzberechnung
       let lastDataTime = 0;
@@ -470,7 +474,10 @@
         const readError = lastFtmsReadError
           ? ` | ReadErr=${lastFtmsReadError}`
           : "";
-        return `Summary: Trackpoints=${trackpoints.length} | HR erkannt=${hrDetected} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s | FTMS notify/read=${ftmsNotifyCount}/${ftmsReadCount} (total ${ftmsTotal}) | Source=${lastTelemetrySource}${readError}`;
+        const hrReadError = lastHrReadError
+          ? ` | HRReadErr=${lastHrReadError}`
+          : "";
+        return `Summary: Trackpoints=${trackpoints.length} | HR erkannt=${hrDetected} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s | FTMS notify/read=${ftmsNotifyCount}/${ftmsReadCount} (total ${ftmsTotal}) | HR notify/read=${hrNotifyCount}/${hrReadCount} | Source=${lastTelemetrySource}${readError}${hrReadError}`;
       }
 
       function updateDebugSummaryOnly() {
@@ -485,8 +492,7 @@
         debugOutput.innerText = lines.join("\n");
       }
 
-      function handleHeartRateMeasurement(event) {
-        const value = event.target.value;
+      function parseHeartRateMeasurement(value) {
         if (!value || value.byteLength < 2) return;
         const flags = value.getUint8(0);
         const is16Bit = (flags & 0x01) !== 0;
@@ -496,6 +502,11 @@
           updateLiveMetrics();
           updateDebugSummaryOnly();
         }
+      }
+
+      function handleHeartRateMeasurement(event) {
+        hrNotifyCount++;
+        parseHeartRateMeasurement(event.target.value);
       }
 
       function getReadableError(error) {
@@ -613,6 +624,31 @@
           clearInterval(dataPollInterval);
           dataPollInterval = null;
         }
+        if (hrPollInterval) {
+          clearInterval(hrPollInterval);
+          hrPollInterval = null;
+        }
+      }
+
+      function startHeartRatePollingFallback() {
+        if (!heartRateChar || typeof heartRateChar.readValue !== "function") {
+          return;
+        }
+        if (hrPollInterval) {
+          clearInterval(hrPollInterval);
+          hrPollInterval = null;
+        }
+        hrPollInterval = setInterval(async () => {
+          try {
+            const value = await heartRateChar.readValue();
+            hrReadCount++;
+            lastHrReadError = "";
+            parseHeartRateMeasurement(value);
+          } catch (hrReadErr) {
+            lastHrReadError = getReadableError(hrReadErr) || "hr read failed";
+            updateDebugSummaryOnly();
+          }
+        }, 1000);
       }
 
       function startDataPollingFallback() {
@@ -1001,6 +1037,7 @@
               "characteristicvaluechanged",
               handleHeartRateMeasurement,
             );
+            startHeartRatePollingFallback();
           } catch (hrErr) {
             console.log(
               "Heart Rate Service nicht verfügbar, nutze FTMS-HR:",
