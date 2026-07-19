@@ -1,0 +1,20 @@
+{
+  "short_name": "IntervalleApp",
+  "name": "FTMS Bluetooth Laufband Intervalle",
+  "icons": [
+    {
+      "src": "https://placeholder.com",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://placeholder.com",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "laufband.html",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "theme_color": "#000000"
+}

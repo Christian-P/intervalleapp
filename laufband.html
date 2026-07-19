@@ -1,0 +1,1185 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FTMS Intervall Trainer v2</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-size: 16px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        padding: 16px;
+        background: #121212;
+        color: #fff;
+        line-height: 1.4;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1,
+      h2 {
+        color: #00adb5;
+      }
+      .section {
+        background: #1e1e1e;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+      }
+      button {
+        background: #00adb5;
+        color: white;
+        border: none;
+        padding: 12px 14px;
+        font-size: 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-right: 10px;
+        min-height: 44px;
+        touch-action: manipulation;
+      }
+      button:disabled {
+        background: #444;
+        cursor: not-allowed;
+      }
+      #live-data {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .data-box {
+        background: #2a2a2a;
+        padding: 10px;
+        text-align: center;
+        border-radius: 10px;
+        min-height: 92px;
+      }
+      .data-val {
+        font-size: clamp(18px, 4.5vw, 24px);
+        font-weight: 700;
+        color: #eee;
+        margin-top: 4px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 140px;
+        background: #2a2a2a;
+        color: #fff;
+        border: 1px solid #444;
+        font-family: monospace;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      .builder-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .builder-grid input,
+      .builder-grid select,
+      .builder-grid button {
+        width: 100%;
+      }
+      .builder-grid input,
+      .builder-grid select {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #444;
+        background: #2a2a2a;
+        color: #fff;
+      }
+      .segment-list {
+        margin-top: 12px;
+        display: grid;
+        gap: 8px;
+      }
+      .segment-item {
+        background: #2a2a2a;
+        padding: 8px 10px;
+        border-radius: 10px;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr 1fr auto;
+        gap: 8px;
+        align-items: center;
+        cursor: move;
+      }
+      .segment-item.dragging {
+        opacity: 0.6;
+      }
+      .segment-item input,
+      .segment-item select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #444;
+        background: #1e1e1e;
+        color: #fff;
+        min-height: 40px;
+      }
+      .segment-actions {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .segment-actions button {
+        margin-right: 0;
+        padding: 6px 8px;
+        font-size: 14px;
+      }
+      .template-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        align-items: center;
+      }
+      .template-actions input {
+        flex: 1;
+        min-width: 220px;
+      }
+      .template-list {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .template-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        background: #2a2a2a;
+        padding: 10px 12px;
+        border-radius: 10px;
+        flex-wrap: wrap;
+      }
+      .template-item strong {
+        display: block;
+        margin-bottom: 2px;
+      }
+      .template-meta {
+        color: #9aa0a6;
+        font-size: 13px;
+      }
+      .template-item-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .template-item-actions button {
+        margin-right: 0;
+        padding: 6px 10px;
+        font-size: 14px;
+      }
+      .btn-secondary {
+        background: #2a2a2a;
+        border: 1px solid #444;
+      }
+      .btn-danger {
+        background: #b94a48;
+      }
+      .template-empty {
+        color: #9aa0a6;
+        font-style: italic;
+        padding: 8px 0;
+      }
+      .debug-box {
+        display: none;
+        margin-top: 12px;
+        padding: 10px;
+        background: #161616;
+        border: 1px solid #333;
+        border-radius: 10px;
+        font-family: monospace;
+        font-size: 13px;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .debug-box.visible {
+        display: block;
+      }
+      .debug-toggle {
+        margin-top: 10px;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 12px;
+        }
+        h1 {
+          font-size: 1.4rem;
+          margin-bottom: 12px;
+        }
+        .section {
+          padding: 12px;
+        }
+        #live-data {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .builder-grid {
+          grid-template-columns: 1fr;
+        }
+        .segment-item {
+          grid-template-columns: 1fr;
+        }
+        .template-item {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .template-item-actions {
+          width: 100%;
+        }
+        .template-item-actions button {
+          flex: 1;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 10px;
+        }
+        button {
+          width: 100%;
+          margin-right: 0;
+          margin-bottom: 8px;
+        }
+        #live-data {
+          grid-template-columns: 1fr;
+        }
+        .data-box {
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>FTMS Intervall Trainer Pro</h1>
+
+    <div class="section">
+      <button id="btn-connect">1. Laufband verbinden</button>
+      <button id="btn-start" disabled>2. Training starten</button>
+      <button id="btn-stop" disabled>3. Beenden & TCX Export</button>
+      <p id="status">Status: Getrennt</p>
+    </div>
+
+    <div class="section">
+      <h2>Live-Daten vom F37s</h2>
+      <div id="live-data">
+        <div class="data-box">
+          <div>Geschwindigkeit</div>
+          <div class="data-val" id="val-speed">0.0 km/h</div>
+        </div>
+        <div class="data-box">
+          <div>Distanz</div>
+          <div class="data-val" id="val-dist">0 m</div>
+        </div>
+        <div class="data-box">
+          <div>Zeit (Gesamt)</div>
+          <div class="data-val" id="val-time">00:00</div>
+        </div>
+        <div class="data-box">
+          <div>Herzfrequenz</div>
+          <div class="data-val" id="val-hr">-- bpm</div>
+        </div>
+      </div>
+      <button class="debug-toggle" id="btn-toggle-debug" type="button">
+        Debug anzeigen
+      </button>
+      <div class="debug-box" id="debug-output">
+        Debug-Info: Warte auf Daten...
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Intervall-Planung</h2>
+      <p>
+        <small
+          >Füge Segmente bequem hinzu oder bearbeite das JSON direkt. Typen:
+          "zeit" (Sekunden) oder "strecke" (Meter). Geschwindigkeit in
+          km/h.</small
+        >
+      </p>
+
+      <div class="builder-grid">
+        <input id="segment-name" placeholder="Name" value="Intervall" />
+        <select id="segment-type">
+          <option value="strecke">Strecke</option>
+          <option value="zeit">Zeit</option>
+        </select>
+        <input
+          id="segment-target"
+          type="number"
+          placeholder="Ziel"
+          value="400"
+        />
+        <input
+          id="segment-tempo"
+          type="number"
+          step="0.1"
+          placeholder="Tempo"
+          value="12"
+        />
+        <button id="btn-add-segment">Segment hinzufügen</button>
+      </div>
+
+      <div class="segment-list" id="segment-list"></div>
+
+      <div class="template-actions">
+        <input
+          id="template-name"
+          placeholder="Vorlagenname"
+          value="Meine Vorlage"
+        />
+        <button id="btn-save-template">Als Vorlage speichern</button>
+      </div>
+
+      <div class="template-list" id="template-list"></div>
+
+      <textarea id="workout-json">
+[
+  { "name": "Einlaufen", "typ": "strecke", "ziel": 1000, "tempo": 8.0 },
+  { "name": "Intervall 1", "typ": "strecke", "ziel": 400, "tempo": 14.0 },
+  { "name": "Trabpause 1", "typ": "zeit", "ziel": 180, "tempo": 6.0 },
+  { "name": "Intervall 2", "typ": "strecke", "ziel": 400, "tempo": 14.0 },
+  { "name": "Auslaufen", "typ": "zeit", "ziel": 300, "tempo": 8.0 }
+]</textarea
+      >
+    </div>
+
+    <div class="section">
+      <h2>Aktueller Schritt</h2>
+      <p id="current-step-info">Kein Training aktiv</p>
+      <p id="step-countdown">Verbleibend: --</p>
+    </div>
+
+    <script>
+      const FTMS_SERVICE_UUID = 0x1826;
+      const TREADMILL_DATA_CHAR_UUID = 0x2acd;
+      const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
+
+      let bluetoothDevice = null;
+      let controlPointChar = null;
+
+      let workoutSteps = [];
+      let currentStepIndex = -1;
+      let isTrainingActive = false;
+
+      let currentSpeed = 0;
+      let currentDistance = 0;
+      let currentHR = 0;
+      let totalSeconds = 0;
+      let timerInterval = null;
+      let workoutFinished = false;
+
+      // Fallback Variablen für interne Distanzberechnung
+      let lastDataTime = 0;
+      let calculatedDistance = 0;
+
+      let stepStartDistance = 0;
+      let stepStartSeconds = 0;
+      let trackpoints = [];
+      let startTimeISO = "";
+
+      const btnConnect = document.getElementById("btn-connect");
+      const btnStart = document.getElementById("btn-start");
+      const btnStop = document.getElementById("btn-stop");
+      const txtStatus = document.getElementById("status");
+      const txtJson = document.getElementById("workout-json");
+      const debugOutput = document.getElementById("debug-output");
+      const btnToggleDebug = document.getElementById("btn-toggle-debug");
+      const segmentNameInput = document.getElementById("segment-name");
+      const segmentTypeSelect = document.getElementById("segment-type");
+      const segmentTargetInput = document.getElementById("segment-target");
+      const segmentTempoInput = document.getElementById("segment-tempo");
+      const btnAddSegment = document.getElementById("btn-add-segment");
+      const segmentList = document.getElementById("segment-list");
+      const templateNameInput = document.getElementById("template-name");
+      const btnSaveTemplate = document.getElementById("btn-save-template");
+      const templateList = document.getElementById("template-list");
+      const TEMPLATE_STORAGE_KEY = "ftms-workout-templates";
+
+      function parseWorkoutSteps() {
+        try {
+          const parsed = JSON.parse(txtJson.value);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function updateWorkoutJson() {
+        txtJson.value = JSON.stringify(workoutSteps, null, 2);
+      }
+
+      function formatStepTarget(step) {
+        return step.typ === "zeit"
+          ? `${step.ziel} Sekunden`
+          : `${step.ziel} Meter`;
+      }
+
+      function renderSegmentList() {
+        if (!segmentList) return;
+        segmentList.innerHTML = "";
+        if (!workoutSteps.length) {
+          workoutSteps = [
+            { name: "Neues Segment", typ: "strecke", ziel: 400, tempo: 12 },
+          ];
+        }
+        const fragment = document.createDocumentFragment();
+        workoutSteps.forEach((step, index) => {
+          const item = document.createElement("div");
+          item.className = "segment-item";
+          item.draggable = true;
+          item.dataset.index = index;
+          item.innerHTML = `
+            <input type="text" value="${step.name}" data-field="name" data-index="${index}" />
+            <select data-field="typ" data-index="${index}">
+              <option value="strecke" ${step.typ === "strecke" ? "selected" : ""}>Strecke</option>
+              <option value="zeit" ${step.typ === "zeit" ? "selected" : ""}>Zeit</option>
+            </select>
+            <input type="number" value="${step.ziel}" data-field="ziel" data-index="${index}" />
+            <input type="number" step="0.1" value="${step.tempo}" data-field="tempo" data-index="${index}" />
+            <span class="segment-actions">
+              <button type="button" data-action="remove" data-index="${index}">Entfernen</button>
+            </span>
+          `;
+          item.addEventListener("dragstart", handleDragStart);
+          item.addEventListener("dragover", handleDragOver);
+          item.addEventListener("drop", handleDrop);
+          item.addEventListener("dragend", handleDragEnd);
+          fragment.appendChild(item);
+        });
+        segmentList.appendChild(fragment);
+      }
+
+      let draggedIndex = null;
+
+      function handleDragStart(event) {
+        draggedIndex = Number(event.currentTarget.dataset.index);
+        event.currentTarget.classList.add("dragging");
+        event.dataTransfer.effectAllowed = "move";
+      }
+
+      function handleDragOver(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+      }
+
+      function handleDrop(event) {
+        event.preventDefault();
+        const targetIndex = Number(event.currentTarget.dataset.index);
+        if (draggedIndex === null || Number.isNaN(targetIndex)) return;
+        const [movedStep] = workoutSteps.splice(draggedIndex, 1);
+        workoutSteps.splice(targetIndex, 0, movedStep);
+        updateWorkoutJson();
+        renderSegmentList();
+        draggedIndex = null;
+      }
+
+      function handleDragEnd(event) {
+        event.currentTarget.classList.remove("dragging");
+        draggedIndex = null;
+      }
+
+      function getTemplates() {
+        try {
+          const stored = JSON.parse(
+            localStorage.getItem(TEMPLATE_STORAGE_KEY) || "[]",
+          );
+          return Array.isArray(stored) ? stored : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveTemplates(templates) {
+        localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(templates));
+      }
+
+      function renderTemplateList() {
+        if (!templateList) return;
+        const templates = getTemplates();
+
+        if (!templates.length) {
+          templateList.innerHTML =
+            '<div class="template-empty">Noch keine Vorlagen gespeichert.</div>';
+          return;
+        }
+
+        templateList.innerHTML = "";
+        const fragment = document.createDocumentFragment();
+
+        templates.forEach((template, index) => {
+          const item = document.createElement("div");
+          item.className = "template-item";
+
+          const info = document.createElement("div");
+          const title = document.createElement("strong");
+          title.textContent = template.name || "Unbenannte Vorlage";
+          info.appendChild(title);
+
+          const meta = document.createElement("div");
+          meta.className = "template-meta";
+          const segmentCount = Array.isArray(template.workout)
+            ? template.workout.length
+            : 0;
+          const savedAt = template.savedAt
+            ? new Date(template.savedAt).toLocaleString("de-DE")
+            : "gerade gespeichert";
+          meta.textContent = `${segmentCount} Segmente • ${savedAt}`;
+          info.appendChild(meta);
+
+          const actions = document.createElement("div");
+          actions.className = "template-item-actions";
+
+          const btnLoad = document.createElement("button");
+          btnLoad.type = "button";
+          btnLoad.textContent = "Laden";
+          btnLoad.dataset.action = "load";
+          btnLoad.dataset.index = String(index);
+          actions.appendChild(btnLoad);
+
+          const btnOverwrite = document.createElement("button");
+          btnOverwrite.type = "button";
+          btnOverwrite.className = "btn-secondary";
+          btnOverwrite.textContent = "Überschreiben";
+          btnOverwrite.dataset.action = "overwrite";
+          btnOverwrite.dataset.index = String(index);
+          actions.appendChild(btnOverwrite);
+
+          const btnDelete = document.createElement("button");
+          btnDelete.type = "button";
+          btnDelete.className = "btn-danger";
+          btnDelete.textContent = "Löschen";
+          btnDelete.dataset.action = "delete";
+          btnDelete.dataset.index = String(index);
+          actions.appendChild(btnDelete);
+
+          item.appendChild(info);
+          item.appendChild(actions);
+          fragment.appendChild(item);
+        });
+
+        templateList.appendChild(fragment);
+      }
+
+      function saveTemplate() {
+        const name = templateNameInput.value.trim() || "Meine Vorlage";
+        const templates = getTemplates();
+        const existingIndex = templates.findIndex(
+          (template) => template.name?.toLowerCase() === name.toLowerCase(),
+        );
+        const workout = JSON.parse(JSON.stringify(workoutSteps));
+
+        if (existingIndex >= 0) {
+          templates[existingIndex] = {
+            ...templates[existingIndex],
+            name,
+            workout,
+            savedAt: new Date().toISOString(),
+          };
+        } else {
+          templates.push({
+            name,
+            workout,
+            savedAt: new Date().toISOString(),
+          });
+        }
+
+        saveTemplates(templates);
+        renderTemplateList();
+        templateNameInput.value = name;
+      }
+
+      function loadTemplate(index) {
+        try {
+          const templates = getTemplates();
+          const template = templates[index];
+          if (!template) return;
+
+          workoutSteps = JSON.parse(JSON.stringify(template.workout));
+          updateWorkoutJson();
+          renderSegmentList();
+          templateNameInput.value = template.name || "Meine Vorlage";
+        } catch (e) {
+          console.error("Vorlage konnte nicht geladen werden", e);
+        }
+      }
+
+      function deleteTemplate(index) {
+        const templates = getTemplates();
+        if (!templates[index]) return;
+        templates.splice(index, 1);
+        saveTemplates(templates);
+        renderTemplateList();
+      }
+
+      btnAddSegment.addEventListener("click", () => {
+        const name = segmentNameInput.value.trim() || "Segment";
+        const typ = segmentTypeSelect.value;
+        const ziel = Number(segmentTargetInput.value);
+        const tempo = Number(segmentTempoInput.value);
+        if (!Number.isFinite(ziel) || !Number.isFinite(tempo)) return;
+        workoutSteps.push({ name, typ, ziel, tempo });
+        updateWorkoutJson();
+        renderSegmentList();
+      });
+
+      segmentList.addEventListener("input", (event) => {
+        const field = event.target.dataset.field;
+        const index = Number(event.target.dataset.index);
+        if (!field || Number.isNaN(index) || !workoutSteps[index]) return;
+        const value =
+          event.target.type === "number"
+            ? Number(event.target.value)
+            : event.target.value;
+        workoutSteps[index][field] = value;
+        updateWorkoutJson();
+      });
+
+      segmentList.addEventListener("change", (event) => {
+        const field = event.target.dataset.field;
+        const index = Number(event.target.dataset.index);
+        if (!field || Number.isNaN(index) || !workoutSteps[index]) return;
+        workoutSteps[index][field] = event.target.value;
+        updateWorkoutJson();
+      });
+
+      segmentList.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action='remove']");
+        if (!button) return;
+        const index = Number(button.dataset.index);
+        if (Number.isNaN(index)) return;
+        workoutSteps.splice(index, 1);
+        if (!workoutSteps.length) {
+          workoutSteps = [
+            { name: "Neues Segment", typ: "strecke", ziel: 400, tempo: 12 },
+          ];
+        }
+        updateWorkoutJson();
+        renderSegmentList();
+      });
+
+      templateList.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const index = Number(button.dataset.index);
+        if (Number.isNaN(index)) return;
+
+        const action = button.dataset.action;
+        if (action === "load") {
+          loadTemplate(index);
+        } else if (action === "overwrite") {
+          saveTemplate();
+        } else if (action === "delete") {
+          deleteTemplate(index);
+        }
+      });
+
+      if (btnToggleDebug) {
+        btnToggleDebug.addEventListener("click", () => {
+          debugOutput.classList.toggle("visible");
+          btnToggleDebug.textContent = debugOutput.classList.contains("visible")
+            ? "Debug ausblenden"
+            : "Debug anzeigen";
+        });
+      }
+
+      btnSaveTemplate.addEventListener("click", saveTemplate);
+      txtJson.addEventListener("input", () => {
+        const parsedSteps = parseWorkoutSteps();
+        if (parsedSteps.length) {
+          workoutSteps = parsedSteps;
+          renderSegmentList();
+        }
+      });
+
+      workoutSteps = parseWorkoutSteps();
+      renderSegmentList();
+      renderTemplateList();
+
+      btnConnect.addEventListener("click", async () => {
+        try {
+          if (!navigator.bluetooth) {
+            throw new Error(
+              "Web Bluetooth wird auf diesem Gerät oder Browser nicht unterstützt. Bitte nutze Safari auf iPhone oder einen Browser mit Web-Bluetooth-Unterstützung.",
+            );
+          }
+
+          txtStatus.innerText = "Suche nach Bluetooth-Geräten...";
+          bluetoothDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ services: [FTMS_SERVICE_UUID] }],
+          });
+
+          txtStatus.innerText = "Verbinde mit GATT Server...";
+          const server = await bluetoothDevice.gatt.connect();
+
+          txtStatus.innerText = "Lese FTMS Service...";
+          const service = await server.getPrimaryService(FTMS_SERVICE_UUID);
+
+          txtStatus.innerText = "Verbinde Daten-Streaming...";
+          const dataChar = await service.getCharacteristic(
+            TREADMILL_DATA_CHAR_UUID,
+          );
+          await dataChar.startNotifications();
+          dataChar.addEventListener(
+            "characteristicvaluechanged",
+            handleTreadmillData,
+          );
+
+          txtStatus.innerText = "Verbinde Control Point...";
+          controlPointChar = await service.getCharacteristic(
+            FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID,
+          );
+
+          // Aktiviert "Indications" für Rückmeldungen vom Laufband falls vom Gerät gefordert
+          try {
+            await controlPointChar.startNotifications();
+            controlPointChar.addEventListener(
+              "characteristicvaluechanged",
+              (e) => {
+                console.log(
+                  "Laufband Kontroll-Antwort:",
+                  new Uint8Array(e.target.value.buffer),
+                );
+              },
+            );
+          } catch (indigoErr) {
+            console.log(
+              "GATT Indications nicht unterstützt oder nötig:",
+              indigoErr.message,
+            );
+          }
+
+          // FTMS Schritt 1: Request Control (OpCode 0x00)
+          txtStatus.innerText = "Fordere FTMS Kontrolle an...";
+          await controlPointChar.writeValue(new Uint8Array([0x00]));
+
+          txtStatus.innerText = "Erfolgreich mit Sportstech F37s verbunden!";
+          btnStart.disabled = false;
+          btnConnect.disabled = true;
+        } catch (error) {
+          txtStatus.innerText = "Fehler: " + error.message;
+          console.error(error);
+        }
+      });
+
+      function handleTreadmillData(event) {
+        const value = event.target.value;
+        if (value.byteLength < 4) return;
+
+        const flags = value.getUint16(0, true);
+        let byteOffset = 2;
+
+        // 1. Geschwindigkeit auslesen (Immer vorhanden im FTMS-Treadmill-Standard)
+        currentSpeed = value.getUint16(byteOffset, true) / 100; // km/h
+        byteOffset += 2;
+
+        // 2. Distanz auslesen mit robusterer Auswertung
+        // Falls das Flag-Bit gesetzt ist oder das Paket groß genug ist, versuchen wir es zu parsen
+        if (!(flags & 0x04) && value.byteLength >= byteOffset + 3) {
+          const d1 = value.getUint8(byteOffset);
+          const d2 = value.getUint8(byteOffset + 1);
+          const d3 = value.getUint8(byteOffset + 2);
+          currentDistance = d1 | (d2 << 8) | (d3 << 16);
+          byteOffset += 3;
+        } else {
+          // FALLBACK: Wenn das Band keine Distanz streamt, berechnen wir sie anhand der Zeit & km/h selbst
+          const now = Date.now();
+          if (lastDataTime > 0 && isTrainingActive && currentSpeed > 0) {
+            const deltaSeconds = (now - lastDataTime) / 1000;
+            // km/h in m/s umrechnen und aufaddieren
+            calculatedDistance += (currentSpeed / 3.6) * deltaSeconds;
+            currentDistance = Math.round(calculatedDistance);
+          }
+          lastDataTime = now;
+        }
+
+        // 3. Herzfrequenz auslesen aus dem FTMS-Paket
+        let hrCandidate = 0;
+        const isPlausibleHr = (candidate) =>
+          Number.isInteger(candidate) && candidate >= 30 && candidate <= 220;
+
+        const hrPosition = 16;
+        if (hrPosition >= 0 && hrPosition < value.byteLength) {
+          const candidate = value.getUint8(hrPosition);
+          if (isPlausibleHr(candidate)) {
+            hrCandidate = candidate;
+          }
+        }
+
+        currentHR = hrCandidate;
+
+        if (debugOutput) {
+          const bytes = Array.from(
+            new Uint8Array(
+              value.buffer.slice(
+                value.byteOffset,
+                value.byteOffset + value.byteLength,
+              ),
+            ),
+          );
+          const byteHex = bytes
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join(" ");
+          const parsedValues = [
+            `Flags: 0x${flags.toString(16)}`,
+            `Bytes: ${bytes.join(" ")}`,
+            `BytesHex: ${byteHex}`,
+            `Speed: ${currentSpeed.toFixed(2)} km/h`,
+            `Distance: ${currentDistance} m`,
+            `HR: ${currentHR || "--"} bpm`,
+            `ByteOffset: ${byteOffset}`,
+            `Length: ${value.byteLength}`,
+            `Time: ${new Date().toLocaleTimeString("de-DE")}`,
+          ];
+          debugOutput.innerText = parsedValues.join("\n");
+        }
+
+        // UI-Aktualisierung
+        document.getElementById("val-speed").innerText =
+          currentSpeed.toFixed(1) + " km/h";
+        document.getElementById("val-dist").innerText = currentDistance + " m";
+        if (currentHR > 0) {
+          document.getElementById("val-hr").innerText = currentHR + " bpm";
+        } else {
+          document.getElementById("val-hr").innerText = "-- bpm";
+        }
+
+        // Trackpunkte loggen
+        if (isTrainingActive) {
+          // Vermeidet doppelte Einträge in der exakt selben Sekunde
+          const lastTp = trackpoints[trackpoints.length - 1];
+          if (!lastTp || lastTp.seconds !== totalSeconds) {
+            const activeStep = workoutSteps[currentStepIndex] || null;
+            trackpoints.push({
+              time: new Date().toISOString(),
+              seconds: totalSeconds,
+              distance: currentDistance,
+              speed: currentSpeed / 3.6,
+              hr: currentHR,
+              stepIndex: currentStepIndex,
+              stepName: activeStep ? activeStep.name : "",
+              stepType: activeStep ? activeStep.typ : "",
+              stepTarget: activeStep ? activeStep.ziel : 0,
+            });
+          }
+          checkIntervallProgress();
+        }
+      }
+
+      async function sendFTMSCommand(bytesArray) {
+        if (!controlPointChar) return;
+        try {
+          await controlPointChar.writeValue(new Uint8Array(bytesArray));
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        } catch (e) {
+          console.error("Fehler beim Senden des FTMS-Befehls:", e);
+        }
+      }
+
+      async function setTreadmillSpeed(kmh) {
+        const speedRaw = Math.round(Math.max(0, kmh) * 100);
+        const bytes = [0x02, speedRaw & 0xff, (speedRaw >> 8) & 0xff];
+        await sendFTMSCommand(bytes);
+      }
+
+      async function startMachine() {
+        await sendFTMSCommand([0x07]);
+      }
+
+      async function stopMachine() {
+        await sendFTMSCommand([0x06]);
+      }
+
+      btnStart.addEventListener("click", async () => {
+        try {
+          workoutSteps = JSON.parse(txtJson.value);
+
+          txtStatus.innerText = "Starte Laufband-Automatik...";
+          await startMachine();
+          await new Promise((resolve) => setTimeout(resolve, 300));
+
+          workoutFinished = false;
+          currentStepIndex = 0;
+          isTrainingActive = true;
+          totalSeconds = 0;
+          calculatedDistance = 0;
+          lastDataTime = Date.now();
+          trackpoints = [];
+          startTimeISO = new Date().toISOString();
+          btnStart.disabled = true;
+          btnStop.disabled = false;
+          timerInterval = setInterval(() => {
+            totalSeconds++;
+            let mins = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+            let secs = String(totalSeconds % 60).padStart(2, "0");
+            document.getElementById("val-time").innerText = mins + ":" + secs;
+            if (isTrainingActive) checkIntervallProgress();
+          }, 1000);
+          // Ersten Schritt direkt aktivieren
+          await startStep(0);
+        } catch (e) {
+          alert("Fehler beim Trainingsstart. Bitte JSON prüfen!");
+        }
+      });
+      async function startStep(index) {
+        if (index >= workoutSteps.length) {
+          if (!workoutFinished) {
+            workoutFinished = true;
+            await endWorkout();
+          }
+          return;
+        }
+        currentStepIndex = index;
+        stepStartDistance = currentDistance;
+        stepStartSeconds = totalSeconds;
+        const step = workoutSteps[index];
+        document.getElementById("current-step-info").innerText =
+          "Aktiv: " + step.name + " (" + step.tempo + " km/h)";
+        await setTreadmillSpeed(step.tempo);
+      }
+      function checkIntervallProgress() {
+        if (currentStepIndex >= workoutSteps.length) return;
+        const step = workoutSteps[currentStepIndex];
+        let verbleibend = "";
+        let fertig = false;
+        if (step.typ === "zeit") {
+          const abgelaufeneZeit = totalSeconds - stepStartSeconds;
+          const rest = step.ziel - abgelaufeneZeit;
+          verbleibend = rest + " Sekunden";
+          if (rest <= 0) fertig = true;
+        } else if (step.typ === "strecke") {
+          const abgelaufeneStrecke = currentDistance - stepStartDistance;
+          const rest = step.ziel - abgelaufeneStrecke;
+          verbleibend = Math.max(0, rest) + " Meter";
+          if (rest <= 0) fertig = true;
+        }
+        document.getElementById("step-countdown").innerText =
+          "Verbleibend: " + verbleibend;
+        if (fertig) {
+          if (currentStepIndex + 1 >= workoutSteps.length) {
+            void endWorkout();
+          } else {
+            void startStep(currentStepIndex + 1);
+          }
+        }
+      }
+      btnStop.addEventListener("click", () => {
+        if (!workoutFinished) {
+          workoutFinished = true;
+          endWorkout();
+        }
+      });
+      async function endWorkout() {
+        if (isTrainingActive === false && timerInterval === null) return;
+        isTrainingActive = false;
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+        await stopMachine();
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        await setTreadmillSpeed(0);
+        document.getElementById("current-step-info").innerText =
+          "Training beendet!";
+        document.getElementById("step-countdown").innerText = "--";
+        exportTCX();
+        btnStart.disabled = false;
+        btnStop.disabled = true;
+      }
+      function escapeXml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+      }
+      async function exportTCX() {
+        if (trackpoints.length === 0) {
+          alert("Keine Trainingsdaten aufgezeichnet.");
+          return;
+        }
+
+        const startTime = startTimeISO || new Date().toISOString();
+        const avgHr =
+          trackpoints.reduce((sum, tp) => sum + (tp.hr > 0 ? tp.hr : 0), 0) /
+          Math.max(trackpoints.filter((tp) => tp.hr > 0).length || 1, 1);
+        const maxHr =
+          trackpoints.reduce((max, tp) => (tp.hr > max ? tp.hr : max), 0) || 0;
+        const maxSpeed =
+          trackpoints.reduce(
+            (max, tp) => (tp.speed > max ? tp.speed : max),
+            0,
+          ) || 0;
+
+        const laps = [];
+        let currentLap = null;
+
+        trackpoints.forEach((tp) => {
+          const stepIndex = Number.isFinite(tp.stepIndex) ? tp.stepIndex : -1;
+          const lapName = tp.stepName || `Segment ${stepIndex + 1}`;
+          if (!currentLap || currentLap.stepIndex !== stepIndex) {
+            if (currentLap) laps.push(currentLap);
+            currentLap = {
+              stepIndex,
+              name: lapName,
+              type: tp.stepType || "strecke",
+              target: tp.stepTarget || 0,
+              points: [],
+            };
+          }
+          currentLap.points.push(tp);
+        });
+
+        if (currentLap) laps.push(currentLap);
+
+        const lapXml = laps
+          .map((lap, index) => {
+            const points = lap.points;
+            if (!points.length) return "";
+
+            const firstPoint = points[0];
+            const lastPoint = points[points.length - 1];
+            const durationSeconds = Math.max(
+              1,
+              Math.max(0, lastPoint.seconds - firstPoint.seconds) || 1,
+            );
+            const distanceMeters = Math.max(
+              0,
+              Math.round(lastPoint.distance - firstPoint.distance),
+            );
+
+            const lapAvgHr =
+              points.reduce((sum, tp) => sum + (tp.hr > 0 ? tp.hr : 0), 0) /
+              Math.max(points.filter((tp) => tp.hr > 0).length || 1, 1);
+            const lapMaxHr =
+              points.reduce((max, tp) => (tp.hr > max ? tp.hr : max), 0) || 0;
+            const lapMaxSpeed =
+              points.reduce(
+                (max, tp) => (tp.speed > max ? tp.speed : max),
+                0,
+              ) || 0;
+
+            const trackpointXml = points
+              .map((tp) => {
+                const hrXml =
+                  tp.hr > 0
+                    ? `<HeartRateBpm><Value>${tp.hr}</Value></HeartRateBpm>`
+                    : "";
+                return `          <Trackpoint>
+            <Time>${tp.time}</Time>
+            <DistanceMeters>${Math.max(tp.distance, 0)}</DistanceMeters>
+            ${hrXml}
+            <Extensions>
+              <TPX xmlns="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+                <Speed>${tp.speed.toFixed(4)}</Speed>
+              </TPX>
+            </Extensions>
+          </Trackpoint>`;
+              })
+              .join("\n");
+
+            const lapName = escapeXml(lap.name || `Segment ${index + 1}`);
+
+            return `      <Lap StartTime="${firstPoint.time}">
+        <TotalTimeSeconds>${durationSeconds}</TotalTimeSeconds>
+        <DistanceMeters>${distanceMeters}</DistanceMeters>
+        <MaximumSpeed>${lapMaxSpeed.toFixed(4)}</MaximumSpeed>
+        <Calories>0</Calories>
+        <AverageHeartRateBpm><Value>${Math.round(lapAvgHr)}</Value></AverageHeartRateBpm>
+        <MaximumHeartRateBpm><Value>${lapMaxHr}</Value></MaximumHeartRateBpm>
+        <Notes>${lapName}</Notes>
+        <Track>
+${trackpointXml}
+        </Track>
+      </Lap>`;
+          })
+          .filter(Boolean)
+          .join("\n");
+
+        const workoutStepXml = laps
+          .map((lap, index) => {
+            if (!lap.points.length) return "";
+            const lapName = escapeXml(lap.name || `Segment ${index + 1}`);
+            return `          <Step>
+            <StepId>${index + 1}</StepId>
+            <Name>${lapName}</Name>
+            <DurationSeconds>${Math.max(1, lap.points.length)}</DurationSeconds>
+            <TargetType>${lap.type === "zeit" ? "Time" : "Distance"}</TargetType>
+            <TargetValue>${Math.max(1, Number(lap.target) || 1)}</TargetValue>
+            <Intensity>Active</Intensity>
+          </Step>`;
+          })
+          .filter(Boolean)
+          .join("\n");
+
+        const tcxString = `<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2">
+  <Activities>
+    <Activity Sport="Running">
+      <Id>${startTime}</Id>
+${lapXml}
+      <Training>
+        <Workout>
+          <Name>FTMS Intervall Workout</Name>
+${workoutStepXml}
+        </Workout>
+      </Training>
+    </Activity>
+  </Activities>
+</TrainingCenterDatabase>`;
+
+        const blob = new Blob([tcxString], {
+          type: "application/vnd.garmin.tcx+xml",
+        });
+        const fileName =
+          "FTMS_Workout_" + new Date().toISOString().slice(0, 10) + ".tcx";
+
+        if (
+          navigator.canShare &&
+          navigator.canShare({
+            files: [new File([blob], fileName, { type: blob.type })],
+          })
+        ) {
+          try {
+            await navigator.share({
+              files: [new File([blob], fileName, { type: blob.type })],
+              title: "TCX-Export",
+              text: "Hier ist dein FTMS-Training als TCX-Datei.",
+            });
+            return;
+          } catch (error) {
+            if (error.name === "AbortError") {
+              return;
+            }
+            console.warn(
+              "Share API fehlgeschlagen, fallback auf Download:",
+              error,
+            );
+          }
+        }
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    </script>
+  </body>
+</html>
