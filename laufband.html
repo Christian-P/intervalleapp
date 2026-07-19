@@ -347,11 +347,12 @@
 
       <textarea id="workout-json">
 [
-  { "name": "Einlaufen", "typ": "strecke", "ziel": 1000, "tempo": 8.0 },
-  { "name": "Intervall 1", "typ": "strecke", "ziel": 400, "tempo": 14.0 },
-  { "name": "Trabpause 1", "typ": "zeit", "ziel": 180, "tempo": 6.0 },
-  { "name": "Intervall 2", "typ": "strecke", "ziel": 400, "tempo": 14.0 },
-  { "name": "Auslaufen", "typ": "zeit", "ziel": 300, "tempo": 8.0 }
+  { "name": "Einlaufen", "typ": "zeit", "ziel": 15, "tempo": 6.0 },
+  { "name": "Intervall 1", "typ": "strecke", "ziel": 100, "tempo": 10.0 },
+  { "name": "Trabpause 1", "typ": "zeit", "ziel": 20, "tempo": 6.0 },
+  { "name": "Intervall 2", "typ": "strecke", "ziel": 100, "tempo": 10.0 },
+  { "name": "Trabpause 2", "typ": "zeit", "ziel": 20, "tempo": 6.0 },
+  { "name": "Auslaufen", "typ": "zeit", "ziel": 15, "tempo": 4.0 }
 ]</textarea
       >
     </div>
@@ -369,6 +370,7 @@
 
       let bluetoothDevice = null;
       let controlPointChar = null;
+      let treadmillDataChar = null;
 
       let workoutSteps = [];
       let currentStepIndex = -1;
@@ -380,6 +382,9 @@
       let totalSeconds = 0;
       let timerInterval = null;
       let workoutFinished = false;
+      let lastCommandedSpeedKmh = 0;
+      let lastTreadmillDataTimestamp = 0;
+      let dataPollInterval = null;
 
       // Fallback Variablen für interne Distanzberechnung
       let lastDataTime = 0;
@@ -407,6 +412,41 @@
       const btnSaveTemplate = document.getElementById("btn-save-template");
       const templateList = document.getElementById("template-list");
       const TEMPLATE_STORAGE_KEY = "ftms-workout-templates";
+
+      function updateLiveMetrics() {
+        document.getElementById("val-speed").innerText =
+          currentSpeed.toFixed(1) + " km/h";
+        document.getElementById("val-dist").innerText = currentDistance + " m";
+        if (currentHR > 0) {
+          document.getElementById("val-hr").innerText = currentHR + " bpm";
+        } else {
+          document.getElementById("val-hr").innerText = "-- bpm";
+        }
+      }
+
+      function resetDataPolling() {
+        if (dataPollInterval) {
+          clearInterval(dataPollInterval);
+          dataPollInterval = null;
+        }
+      }
+
+      function startDataPollingFallback() {
+        resetDataPolling();
+        if (!treadmillDataChar) return;
+
+        dataPollInterval = setInterval(async () => {
+          if (!treadmillDataChar) return;
+          const noRecentPacket = Date.now() - lastTreadmillDataTimestamp > 3000;
+          if (!noRecentPacket) return;
+          try {
+            const value = await treadmillDataChar.readValue();
+            processTreadmillValue(value, "read");
+          } catch (error) {
+            // Einige Geräte erlauben kein readValue auf Notify-Characteristics.
+          }
+        }, 1200);
+      }
 
       function parseWorkoutSteps() {
         try {
@@ -728,14 +768,21 @@
           const service = await server.getPrimaryService(FTMS_SERVICE_UUID);
 
           txtStatus.innerText = "Verbinde Daten-Streaming...";
-          const dataChar = await service.getCharacteristic(
+          treadmillDataChar = await service.getCharacteristic(
             TREADMILL_DATA_CHAR_UUID,
           );
-          await dataChar.startNotifications();
-          dataChar.addEventListener(
+          await treadmillDataChar.startNotifications();
+          treadmillDataChar.oncharacteristicvaluechanged = handleTreadmillData;
+          treadmillDataChar.removeEventListener(
             "characteristicvaluechanged",
             handleTreadmillData,
           );
+          treadmillDataChar.addEventListener(
+            "characteristicvaluechanged",
+            handleTreadmillData,
+          );
+          lastTreadmillDataTimestamp = Date.now();
+          startDataPollingFallback();
 
           txtStatus.innerText = "Verbinde Control Point...";
           controlPointChar = await service.getCharacteristic(
@@ -774,9 +821,9 @@
         }
       });
 
-      function handleTreadmillData(event) {
-        const value = event.target.value;
+      function processTreadmillValue(value, source = "notify") {
         if (value.byteLength < 4) return;
+        lastTreadmillDataTimestamp = Date.now();
 
         const flags = value.getUint16(0, true);
         let byteOffset = 2;
@@ -792,6 +839,7 @@
           const d2 = value.getUint8(byteOffset + 1);
           const d3 = value.getUint8(byteOffset + 2);
           currentDistance = d1 | (d2 << 8) | (d3 << 16);
+          calculatedDistance = currentDistance;
           byteOffset += 3;
         } else {
           // FALLBACK: Wenn das Band keine Distanz streamt, berechnen wir sie anhand der Zeit & km/h selbst
@@ -841,20 +889,14 @@
             `HR: ${currentHR || "--"} bpm`,
             `ByteOffset: ${byteOffset}`,
             `Length: ${value.byteLength}`,
+            `Source: ${source}`,
             `Time: ${new Date().toLocaleTimeString("de-DE")}`,
           ];
           debugOutput.innerText = parsedValues.join("\n");
         }
 
         // UI-Aktualisierung
-        document.getElementById("val-speed").innerText =
-          currentSpeed.toFixed(1) + " km/h";
-        document.getElementById("val-dist").innerText = currentDistance + " m";
-        if (currentHR > 0) {
-          document.getElementById("val-hr").innerText = currentHR + " bpm";
-        } else {
-          document.getElementById("val-hr").innerText = "-- bpm";
-        }
+        updateLiveMetrics();
 
         // Trackpunkte loggen
         if (isTrainingActive) {
@@ -878,6 +920,10 @@
         }
       }
 
+      function handleTreadmillData(event) {
+        processTreadmillValue(event.target.value, "notify");
+      }
+
       async function sendFTMSCommand(bytesArray) {
         if (!controlPointChar) return;
         try {
@@ -889,6 +935,7 @@
       }
 
       async function setTreadmillSpeed(kmh) {
+        lastCommandedSpeedKmh = Math.max(0, kmh);
         const speedRaw = Math.round(Math.max(0, kmh) * 100);
         const bytes = [0x02, speedRaw & 0xff, (speedRaw >> 8) & 0xff];
         await sendFTMSCommand(bytes);
@@ -916,6 +963,7 @@
           totalSeconds = 0;
           calculatedDistance = 0;
           lastDataTime = Date.now();
+          lastTreadmillDataTimestamp = Date.now();
           trackpoints = [];
           startTimeISO = new Date().toISOString();
           btnStart.disabled = true;
@@ -925,6 +973,22 @@
             let mins = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
             let secs = String(totalSeconds % 60).padStart(2, "0");
             document.getElementById("val-time").innerText = mins + ":" + secs;
+
+            // Fallback für Browser, die FTMS-Notifications unzuverlässig liefern.
+            if (
+              isTrainingActive &&
+              Date.now() - lastTreadmillDataTimestamp > 3000 &&
+              lastCommandedSpeedKmh > 0
+            ) {
+              currentSpeed = lastCommandedSpeedKmh;
+              calculatedDistance += currentSpeed / 3.6;
+              currentDistance = Math.max(
+                currentDistance,
+                Math.round(calculatedDistance),
+              );
+              updateLiveMetrics();
+            }
+
             if (isTrainingActive) checkIntervallProgress();
           }, 1000);
           // Ersten Schritt direkt aktivieren
@@ -984,6 +1048,7 @@
       async function endWorkout() {
         if (isTrainingActive === false && timerInterval === null) return;
         isTrainingActive = false;
+        resetDataPolling();
         if (timerInterval) {
           clearInterval(timerInterval);
           timerInterval = null;
