@@ -424,6 +424,25 @@
         }
       }
 
+      function appendTrackpointIfNeeded() {
+        if (!isTrainingActive) return;
+        const lastTp = trackpoints[trackpoints.length - 1];
+        if (lastTp && lastTp.seconds === totalSeconds) return;
+
+        const activeStep = workoutSteps[currentStepIndex] || null;
+        trackpoints.push({
+          time: new Date().toISOString(),
+          seconds: totalSeconds,
+          distance: currentDistance,
+          speed: currentSpeed / 3.6,
+          hr: currentHR,
+          stepIndex: currentStepIndex,
+          stepName: activeStep ? activeStep.name : "",
+          stepType: activeStep ? activeStep.typ : "",
+          stepTarget: activeStep ? activeStep.ziel : 0,
+        });
+      }
+
       function resetDataPolling() {
         if (dataPollInterval) {
           clearInterval(dataPollInterval);
@@ -900,22 +919,7 @@
 
         // Trackpunkte loggen
         if (isTrainingActive) {
-          // Vermeidet doppelte Einträge in der exakt selben Sekunde
-          const lastTp = trackpoints[trackpoints.length - 1];
-          if (!lastTp || lastTp.seconds !== totalSeconds) {
-            const activeStep = workoutSteps[currentStepIndex] || null;
-            trackpoints.push({
-              time: new Date().toISOString(),
-              seconds: totalSeconds,
-              distance: currentDistance,
-              speed: currentSpeed / 3.6,
-              hr: currentHR,
-              stepIndex: currentStepIndex,
-              stepName: activeStep ? activeStep.name : "",
-              stepType: activeStep ? activeStep.typ : "",
-              stepTarget: activeStep ? activeStep.ziel : 0,
-            });
-          }
+          appendTrackpointIfNeeded();
           checkIntervallProgress();
         }
       }
@@ -927,9 +931,30 @@
       async function sendFTMSCommand(bytesArray) {
         if (!controlPointChar) return;
         try {
-          await controlPointChar.writeValue(new Uint8Array(bytesArray));
+          const payload = new Uint8Array(bytesArray);
+          if (typeof controlPointChar.writeValueWithResponse === "function") {
+            await controlPointChar.writeValueWithResponse(payload);
+          } else {
+            await controlPointChar.writeValue(payload);
+          }
           await new Promise((resolve) => setTimeout(resolve, 200));
         } catch (e) {
+          try {
+            if (
+              typeof controlPointChar.writeValueWithoutResponse === "function"
+            ) {
+              await controlPointChar.writeValueWithoutResponse(
+                new Uint8Array(bytesArray),
+              );
+              await new Promise((resolve) => setTimeout(resolve, 200));
+              return;
+            }
+          } catch (fallbackError) {
+            console.error(
+              "Fallback ohne Response fehlgeschlagen:",
+              fallbackError,
+            );
+          }
           console.error("Fehler beim Senden des FTMS-Befehls:", e);
         }
       }
@@ -989,7 +1014,10 @@
               updateLiveMetrics();
             }
 
-            if (isTrainingActive) checkIntervallProgress();
+            if (isTrainingActive) {
+              appendTrackpointIfNeeded();
+              checkIntervallProgress();
+            }
           }, 1000);
           // Ersten Schritt direkt aktivieren
           await startStep(0);
@@ -1012,6 +1040,10 @@
         document.getElementById("current-step-info").innerText =
           "Aktiv: " + step.name + " (" + step.tempo + " km/h)";
         await setTreadmillSpeed(step.tempo);
+        if (index === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 700));
+          await setTreadmillSpeed(step.tempo);
+        }
       }
       function checkIntervallProgress() {
         if (currentStepIndex >= workoutSteps.length) return;
