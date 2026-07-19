@@ -364,7 +364,7 @@
     </div>
 
     <script>
-      const APP_VERSION = "2.0.7";
+      const APP_VERSION = "2.0.8";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
@@ -377,6 +377,7 @@
       let controlPointChar = null;
       let treadmillDataChar = null;
       let heartRateChar = null;
+      let telemetryChars = [];
 
       let workoutSteps = [];
       let currentStepIndex = -1;
@@ -394,6 +395,7 @@
       let ftmsNotifyCount = 0;
       let ftmsReadCount = 0;
       let lastFtmsReadError = "";
+      let lastTelemetrySource = "none";
 
       // Fallback Variablen für interne Distanzberechnung
       let lastDataTime = 0;
@@ -468,7 +470,7 @@
         const readError = lastFtmsReadError
           ? ` | ReadErr=${lastFtmsReadError}`
           : "";
-        return `Summary: Trackpoints=${trackpoints.length} | HR erkannt=${hrDetected} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s | FTMS notify/read=${ftmsNotifyCount}/${ftmsReadCount} (total ${ftmsTotal})${readError}`;
+        return `Summary: Trackpoints=${trackpoints.length} | HR erkannt=${hrDetected} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s | FTMS notify/read=${ftmsNotifyCount}/${ftmsReadCount} (total ${ftmsTotal}) | Source=${lastTelemetrySource}${readError}`;
       }
 
       function updateDebugSummaryOnly() {
@@ -531,6 +533,50 @@
         }
       }
 
+      function addTelemetryChar(char) {
+        if (!char) return;
+        if (!telemetryChars.includes(char)) {
+          telemetryChars.push(char);
+        }
+      }
+
+      function normalizeUuid(uuid) {
+        return String(uuid).toLowerCase();
+      }
+
+      function isTelemetryCandidate(char) {
+        if (!char || !char.properties) return false;
+        if (!char.properties.notify && !char.properties.indicate) return false;
+        const uuid = normalizeUuid(char.uuid);
+        // Exkludiere Control Point/Status (keine laufenden Sensordaten).
+        if (uuid.endsWith("2ad9") || uuid.endsWith("2ada")) return false;
+        return true;
+      }
+
+      function createTelemetryHandler(sourceTag) {
+        return (event) => {
+          processTreadmillValue(event.target.value, sourceTag);
+        };
+      }
+
+      async function subscribeTelemetryChar(char, sourceTag) {
+        if (!char) return;
+        if (telemetryChars.includes(char)) return;
+        try {
+          if (typeof char.startNotifications === "function") {
+            await char.startNotifications();
+          }
+          const handler = createTelemetryHandler(sourceTag);
+          char.addEventListener("characteristicvaluechanged", handler);
+          addTelemetryChar(char);
+        } catch (streamErr) {
+          console.log(
+            `Telemetry-Subscribe fehlgeschlagen (${sourceTag}):`,
+            getReadableError(streamErr),
+          );
+        }
+      }
+
       function extractHeartRate(value, preferredOffset) {
         const isPlausibleHr = (candidate) =>
           Number.isInteger(candidate) && candidate >= 30 && candidate <= 220;
@@ -571,18 +617,33 @@
 
       function startDataPollingFallback() {
         resetDataPolling();
-        if (!treadmillDataChar) return;
+        if (!telemetryChars.length && !treadmillDataChar) return;
 
         dataPollInterval = setInterval(async () => {
-          if (!treadmillDataChar) return;
-          try {
-            const value = await treadmillDataChar.readValue();
-            ftmsReadCount++;
-            lastFtmsReadError = "";
-            processTreadmillValue(value, "read");
-          } catch (error) {
-            // Einige Geräte erlauben kein readValue auf Notify-Characteristics.
-            lastFtmsReadError = error?.message || "read failed";
+          const candidates = telemetryChars.length
+            ? telemetryChars
+            : treadmillDataChar
+              ? [treadmillDataChar]
+              : [];
+          let readSucceeded = false;
+
+          for (const candidate of candidates) {
+            if (!candidate || typeof candidate.readValue !== "function") {
+              continue;
+            }
+            try {
+              const value = await candidate.readValue();
+              ftmsReadCount++;
+              lastFtmsReadError = "";
+              processTreadmillValue(value, `read:${candidate.uuid}`);
+              readSucceeded = true;
+              break;
+            } catch (error) {
+              lastFtmsReadError = getReadableError(error) || "read failed";
+            }
+          }
+
+          if (!readSucceeded) {
             updateDebugSummaryOnly();
           }
         }, 1000);
@@ -904,6 +965,23 @@
 
           txtStatus.innerText = "Lese FTMS Service...";
           const service = await server.getPrimaryService(FTMS_SERVICE_UUID);
+          telemetryChars = [];
+
+          try {
+            const allChars = await service.getCharacteristics();
+            const telemetryCandidates = allChars.filter(isTelemetryCandidate);
+            for (const candidate of telemetryCandidates) {
+              await subscribeTelemetryChar(
+                candidate,
+                `notify:${candidate.uuid}`,
+              );
+            }
+          } catch (charsErr) {
+            console.log(
+              "Konnte FTMS-Characteristics nicht vollständig lesen:",
+              getReadableError(charsErr),
+            );
+          }
 
           // Optionaler HR-Fallback: falls FTMS-Daten auf iOS unvollständig sind,
           // versuchen wir die Heart-Rate-Characteristic direkt.
@@ -931,30 +1009,44 @@
           }
 
           txtStatus.innerText = "Verbinde Daten-Streaming...";
-          treadmillDataChar = await service.getCharacteristic(
-            TREADMILL_DATA_CHAR_UUID,
-          );
-          await treadmillDataChar.startNotifications();
-          treadmillDataChar.oncharacteristicvaluechanged = handleTreadmillData;
-          treadmillDataChar.removeEventListener(
-            "characteristicvaluechanged",
-            handleTreadmillData,
-          );
-          treadmillDataChar.addEventListener(
-            "characteristicvaluechanged",
-            handleTreadmillData,
-          );
+          try {
+            treadmillDataChar = await service.getCharacteristic(
+              TREADMILL_DATA_CHAR_UUID,
+            );
+            await subscribeTelemetryChar(
+              treadmillDataChar,
+              `notify:${treadmillDataChar.uuid}`,
+            );
+            treadmillDataChar.oncharacteristicvaluechanged =
+              handleTreadmillData;
+            addTelemetryChar(treadmillDataChar);
+          } catch (dataCharErr) {
+            treadmillDataChar = null;
+            console.log(
+              "Treadmill Data Characteristic nicht direkt verfügbar:",
+              getReadableError(dataCharErr),
+            );
+          }
 
           // Initiales read direkt nach dem Verbinden erhöht die Chance,
           // auf iOS/Bluefy früh ein erstes FTMS-Paket zu erhalten.
           try {
-            const initialValue = await treadmillDataChar.readValue();
-            ftmsReadCount++;
-            lastFtmsReadError = "";
-            processTreadmillValue(initialValue, "read-initial");
+            const initialReadCandidate = treadmillDataChar || telemetryChars[0];
+            if (
+              initialReadCandidate &&
+              typeof initialReadCandidate.readValue === "function"
+            ) {
+              const initialValue = await initialReadCandidate.readValue();
+              ftmsReadCount++;
+              lastFtmsReadError = "";
+              processTreadmillValue(
+                initialValue,
+                `read-initial:${initialReadCandidate.uuid}`,
+              );
+            }
           } catch (initialReadError) {
             lastFtmsReadError =
-              initialReadError?.message || "initial read failed";
+              getReadableError(initialReadError) || "initial read failed";
           }
 
           lastTreadmillDataTimestamp = Date.now();
@@ -999,9 +1091,10 @@
 
       function processTreadmillValue(value, source = "notify") {
         if (value.byteLength < 4) return;
-        if (source === "notify") {
+        if (source.startsWith("notify")) {
           ftmsNotifyCount++;
         }
+        lastTelemetrySource = source;
         lastTreadmillDataTimestamp = Date.now();
 
         const flags = value.getUint16(0, true);
