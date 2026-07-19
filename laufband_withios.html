@@ -16,101 +16,73 @@
         font-family:
           -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         margin: 0;
-        max-width: 1240px;
-        padding: 28px 32px 48px;
-        margin-inline: auto;
+        padding: 16px;
         background: #121212;
         color: #fff;
         line-height: 1.4;
         -webkit-font-smoothing: antialiased;
       }
-      h1 {
-        margin: 0 0 18px;
-        font-size: 2rem;
-      }
       h1,
       h2 {
         color: #00adb5;
       }
-      h2 {
-        margin: 0 0 12px;
-      }
       .section {
         background: #1e1e1e;
-        padding: 20px 22px;
-        margin-bottom: 18px;
-        border-radius: 14px;
-        border: 1px solid #2d2d2d;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
       }
       button {
         background: #00adb5;
         color: white;
         border: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 16px;
+        padding: 12px 14px;
         font-size: 16px;
         border-radius: 10px;
         cursor: pointer;
+        margin-right: 10px;
         min-height: 44px;
-        font-weight: 600;
         touch-action: manipulation;
       }
       button:disabled {
         background: #444;
         cursor: not-allowed;
       }
-      .control-actions {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
-      }
-      .status-line {
-        margin: 14px 0 0;
-        color: #cfd4d8;
-      }
       #live-data {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
-        margin-top: 14px;
+        gap: 10px;
+        margin-top: 10px;
       }
       .data-box {
         background: #2a2a2a;
-        padding: 14px 12px;
+        padding: 10px;
         text-align: center;
-        border-radius: 12px;
-        min-height: 108px;
-        border: 1px solid #363636;
+        border-radius: 10px;
+        min-height: 92px;
       }
       .data-val {
-        font-size: 1.9rem;
+        font-size: clamp(18px, 4.5vw, 24px);
         font-weight: 700;
         color: #eee;
-        margin-top: 8px;
+        margin-top: 4px;
       }
       textarea {
         width: 100%;
-        min-height: 220px;
+        min-height: 140px;
         background: #2a2a2a;
         color: #fff;
         border: 1px solid #444;
         font-family: monospace;
-        padding: 14px;
+        padding: 10px;
         border-radius: 8px;
         font-size: 14px;
-        line-height: 1.5;
-        resize: vertical;
       }
       .builder-grid {
         display: grid;
-        grid-template-columns: minmax(180px, 1.4fr) repeat(3, minmax(110px, 0.9fr)) minmax(180px, auto);
-        gap: 12px;
-        margin-top: 14px;
-        align-items: end;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
       }
       .builder-grid input,
       .builder-grid select,
@@ -119,27 +91,26 @@
       }
       .builder-grid input,
       .builder-grid select {
-        padding: 10px 12px;
-        border-radius: 8px;
+        padding: 8px;
+        border-radius: 5px;
         border: 1px solid #444;
         background: #2a2a2a;
         color: #fff;
       }
       .segment-list {
-        margin-top: 16px;
+        margin-top: 12px;
         display: grid;
-        gap: 10px;
+        gap: 8px;
       }
       .segment-item {
         background: #2a2a2a;
-        padding: 12px;
-        border-radius: 12px;
+        padding: 8px 10px;
+        border-radius: 10px;
         display: grid;
-        grid-template-columns: minmax(180px, 1.4fr) repeat(3, minmax(100px, 0.9fr)) auto;
-        gap: 10px;
+        grid-template-columns: 1.2fr 1fr 1fr 1fr auto;
+        gap: 8px;
         align-items: center;
         cursor: move;
-        border: 1px solid #353535;
       }
       .segment-item.dragging {
         opacity: 0.6;
@@ -147,7 +118,7 @@
       .segment-item input,
       .segment-item select {
         width: 100%;
-        padding: 10px 12px;
+        padding: 8px;
         border-radius: 8px;
         border: 1px solid #444;
         background: #1e1e1e;
@@ -158,41 +129,37 @@
         display: flex;
         gap: 6px;
         align-items: center;
-        justify-content: flex-end;
       }
       .segment-actions button {
+        margin-right: 0;
         padding: 6px 8px;
         font-size: 14px;
       }
       .template-actions {
         display: flex;
-        gap: 12px;
-        margin-top: 16px;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
         align-items: center;
       }
       .template-actions input {
         flex: 1;
-        min-width: 320px;
-        padding: 10px 12px;
-        border-radius: 8px;
-        border: 1px solid #444;
-        background: #2a2a2a;
-        color: #fff;
+        min-width: 220px;
       }
       .template-list {
         display: grid;
-        gap: 10px;
-        margin-top: 14px;
+        gap: 8px;
+        margin-top: 10px;
       }
       .template-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 14px;
+        gap: 10px;
         background: #2a2a2a;
-        padding: 12px 14px;
-        border-radius: 12px;
-        border: 1px solid #353535;
+        padding: 10px 12px;
+        border-radius: 10px;
+        flex-wrap: wrap;
       }
       .template-item strong {
         display: block;
@@ -205,116 +172,12 @@
       .template-item-actions {
         display: flex;
         gap: 6px;
+        flex-wrap: wrap;
       }
       .template-item-actions button {
+        margin-right: 0;
         padding: 6px 10px;
         font-size: 14px;
-      }
-      .planner-stack {
-        display: grid;
-        gap: 18px;
-      }
-      .planner-card {
-        background: #242424;
-        border: 1px solid #353535;
-        border-radius: 12px;
-        padding: 16px;
-      }
-      .planner-card h3 {
-        margin: 0 0 8px;
-        font-size: 1rem;
-        color: #f4f6f8;
-      }
-      .planner-card p {
-        margin: 0;
-        color: #aeb4b9;
-        font-size: 0.92rem;
-      }
-      .repeat-builder-grid {
-        display: grid;
-        grid-template-columns: minmax(110px, 0.8fr) minmax(170px, 1.2fr) minmax(120px, 0.9fr) minmax(110px, 0.8fr) minmax(120px, 0.8fr) minmax(150px, auto);
-        gap: 12px;
-        margin-top: 14px;
-        align-items: end;
-      }
-      .repeat-builder-grid input,
-      .repeat-builder-grid select {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 8px;
-        border: 1px solid #444;
-        background: #1f1f1f;
-        color: #fff;
-      }
-      .repeat-builder-grid label,
-      .builder-field label {
-        display: block;
-        margin-bottom: 6px;
-        color: #c8ced3;
-        font-size: 0.84rem;
-        font-weight: 600;
-      }
-      .repeat-row {
-        display: grid;
-        gap: 12px;
-      }
-      .repeat-row + .repeat-row {
-        margin-top: 12px;
-      }
-      .repeat-preview {
-        margin-top: 12px;
-        color: #9fb6b8;
-        font-size: 0.92rem;
-      }
-      .plan-summary {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 12px;
-        margin-top: 18px;
-      }
-      .plan-summary-card {
-        background: #242424;
-        border: 1px solid #353535;
-        border-radius: 12px;
-        padding: 14px 16px;
-      }
-      .plan-summary-label {
-        color: #9ea6ab;
-        font-size: 0.82rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-      .plan-summary-value {
-        margin-top: 8px;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #eef2f4;
-      }
-      .builder-field button {
-        width: 100%;
-      }
-      .json-editor-panel {
-        margin-top: 2px;
-        border: 1px solid #353535;
-        border-radius: 12px;
-        background: #242424;
-        overflow: hidden;
-      }
-      .json-editor-panel summary {
-        cursor: pointer;
-        list-style: none;
-        padding: 14px 16px;
-        font-weight: 600;
-        color: #dbe1e4;
-      }
-      .json-editor-panel summary::-webkit-details-marker {
-        display: none;
-      }
-      .json-editor-panel[open] summary {
-        border-bottom: 1px solid #353535;
-      }
-      .json-editor-panel-content {
-        padding: 14px 16px 16px;
       }
       .btn-secondary {
         background: #2a2a2a;
@@ -331,7 +194,7 @@
       .debug-box {
         display: none;
         margin-top: 12px;
-        padding: 12px 14px;
+        padding: 10px;
         background: #161616;
         border: 1px solid #333;
         border-radius: 10px;
@@ -339,7 +202,6 @@
         font-size: 13px;
         white-space: pre-wrap;
         word-break: break-all;
-        line-height: 1.5;
       }
       .debug-box.visible {
         display: block;
@@ -349,18 +211,65 @@
         padding: 8px 12px;
         font-size: 14px;
       }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 12px;
+        }
+        h1 {
+          font-size: 1.4rem;
+          margin-bottom: 12px;
+        }
+        .section {
+          padding: 12px;
+        }
+        #live-data {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .builder-grid {
+          grid-template-columns: 1fr;
+        }
+        .segment-item {
+          grid-template-columns: 1fr;
+        }
+        .template-item {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .template-item-actions {
+          width: 100%;
+        }
+        .template-item-actions button {
+          flex: 1;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 10px;
+        }
+        button {
+          width: 100%;
+          margin-right: 0;
+          margin-bottom: 8px;
+        }
+        #live-data {
+          grid-template-columns: 1fr;
+        }
+        .data-box {
+          min-height: auto;
+        }
+      }
     </style>
   </head>
   <body>
     <h1>FTMS Intervall Trainer Pro</h1>
 
     <div class="section">
-      <div class="control-actions">
-        <button id="btn-connect">1. Laufband verbinden</button>
-        <button id="btn-start" disabled>2. Training starten</button>
-        <button id="btn-stop" disabled>3. Beenden & TCX Export</button>
-      </div>
-      <p class="status-line" id="status">Status: Getrennt</p>
+      <button id="btn-connect">1. Laufband verbinden</button>
+      <button id="btn-start" disabled>2. Training starten</button>
+      <button id="btn-stop" disabled>3. Beenden & TCX Export</button>
+      <p id="status">Status: Getrennt</p>
     </div>
 
     <div class="section">
@@ -392,197 +301,35 @@
     </div>
 
     <div class="section">
-      <h2>Aktueller Schritt</h2>
-      <p id="current-step-info">Kein Training aktiv</p>
-      <p id="step-countdown">Verbleibend: --</p>
-    </div>
-
-    <div class="section">
       <h2>Intervall-Planung</h2>
       <p>
         <small
-          >Baue Segmente direkt im Builder oder nutze Wiederholungsblöcke für
-          Serien wie 8x400 m. Typen:
+          >Füge Segmente bequem hinzu oder bearbeite das JSON direkt. Typen:
           "zeit" (Sekunden) oder "strecke" (Meter). Geschwindigkeit in
           km/h.</small
         >
       </p>
 
-      <div class="planner-stack">
-        <div class="planner-card">
-          <h3>Einzelsegment</h3>
-          <p>Für einzelne Blöcke wie Einlaufen, Auslaufen oder Sondersegmente.</p>
-          <div class="builder-grid">
-            <div class="builder-field">
-              <label for="segment-name">Name</label>
-              <input id="segment-name" placeholder="Name" value="Intervall" />
-            </div>
-            <div class="builder-field">
-              <label for="segment-type">Typ</label>
-              <select id="segment-type">
-                <option value="strecke">Strecke</option>
-                <option value="zeit">Zeit</option>
-              </select>
-            </div>
-            <div class="builder-field">
-              <label for="segment-target">Ziel</label>
-              <input
-                id="segment-target"
-                type="number"
-                placeholder="Ziel"
-                value="400"
-              />
-            </div>
-            <div class="builder-field">
-              <label for="segment-tempo">Tempo km/h</label>
-              <input
-                id="segment-tempo"
-                type="number"
-                step="0.1"
-                placeholder="Tempo"
-                value="12"
-              />
-            </div>
-            <div class="builder-field">
-              <label>&nbsp;</label>
-              <button id="btn-add-segment">Segment hinzufügen</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="planner-card">
-          <h3>Wiederholungsblock</h3>
-          <p>Lege Arbeit und Erholung einmal fest, wiederhole die Kombination automatisch und gruppiere sie bei Bedarf zu ganzen Sets.</p>
-
-          <div class="repeat-row">
-            <div class="repeat-builder-grid">
-              <div class="builder-field">
-                <label for="repeat-set-count">Sets</label>
-                <input id="repeat-set-count" type="number" min="1" value="1" />
-              </div>
-              <div class="builder-field">
-                <label for="repeat-count">Wiederholungen</label>
-                <input id="repeat-count" type="number" min="1" value="8" />
-              </div>
-              <div class="builder-field">
-                <label for="repeat-work-name">Arbeitsname</label>
-                <input id="repeat-work-name" value="Intervall" />
-              </div>
-              <div class="builder-field">
-                <label for="repeat-work-type">Arbeitstyp</label>
-                <select id="repeat-work-type">
-                  <option value="strecke">Strecke</option>
-                  <option value="zeit">Zeit</option>
-                </select>
-              </div>
-              <div class="builder-field">
-                <label for="repeat-work-target">Arbeitsziel</label>
-                <input id="repeat-work-target" type="number" min="1" value="400" />
-              </div>
-              <div class="builder-field">
-                <label for="repeat-work-tempo">Arbeitstempo</label>
-                <input id="repeat-work-tempo" type="number" min="0" step="0.1" value="14" />
-              </div>
-              <div class="builder-field">
-                <label>&nbsp;</label>
-                <button class="btn-secondary" id="btn-load-8x400" type="button">8x400 Vorlage</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="repeat-row">
-            <div class="repeat-builder-grid">
-              <div class="builder-field">
-                <label for="repeat-recovery-name">Erholungsname</label>
-                <input id="repeat-recovery-name" value="Trabpause" />
-              </div>
-              <div class="builder-field">
-                <label for="repeat-recovery-type">Erholungstyp</label>
-                <select id="repeat-recovery-type">
-                  <option value="zeit">Zeit</option>
-                  <option value="strecke">Strecke</option>
-                </select>
-              </div>
-              <div class="builder-field">
-                <label for="repeat-recovery-target">Erholungsziel</label>
-                <input id="repeat-recovery-target" type="number" min="1" value="180" />
-              </div>
-              <div class="builder-field">
-                <label for="repeat-recovery-tempo">Erholungstempo</label>
-                <input id="repeat-recovery-tempo" type="number" min="0" step="0.1" value="6" />
-              </div>
-              <div class="builder-field">
-                <label for="repeat-include-recovery">Erholung einfügen</label>
-                <select id="repeat-include-recovery">
-                  <option value="yes">Ja</option>
-                  <option value="no">Nein</option>
-                </select>
-              </div>
-              <div class="builder-field">
-                <label>&nbsp;</label>
-                <button id="btn-add-repeat-block" type="button">Block hinzufügen</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="repeat-row">
-            <div class="repeat-builder-grid">
-              <div class="builder-field">
-                <label for="repeat-include-set-recovery">Serienpause zwischen Sets</label>
-                <select id="repeat-include-set-recovery">
-                  <option value="no">Nein</option>
-                  <option value="yes">Ja</option>
-                </select>
-              </div>
-              <div class="builder-field">
-                <label for="repeat-set-recovery-name">Serienpausenname</label>
-                <input id="repeat-set-recovery-name" value="Serienpause" />
-              </div>
-              <div class="builder-field">
-                <label for="repeat-set-recovery-type">Serienpausentyp</label>
-                <select id="repeat-set-recovery-type">
-                  <option value="zeit">Zeit</option>
-                  <option value="strecke">Strecke</option>
-                </select>
-              </div>
-              <div class="builder-field">
-                <label for="repeat-set-recovery-target">Serienpausenziel</label>
-                <input id="repeat-set-recovery-target" type="number" min="1" value="300" />
-              </div>
-              <div class="builder-field">
-                <label for="repeat-set-recovery-tempo">Serienpausentempo</label>
-                <input id="repeat-set-recovery-tempo" type="number" min="0" step="0.1" value="6" />
-              </div>
-              <div class="builder-field">
-                <label>&nbsp;</label>
-                <span></span>
-              </div>
-            </div>
-          </div>
-
-          <div class="repeat-preview" id="repeat-preview">
-            Vorschau: 8 x 400 m Intervall mit 180 s Trabpause.
-          </div>
-        </div>
-      </div>
-
-      <div class="plan-summary" id="plan-summary">
-        <div class="plan-summary-card">
-          <div class="plan-summary-label">Segmente</div>
-          <div class="plan-summary-value" id="summary-segments">0</div>
-        </div>
-        <div class="plan-summary-card">
-          <div class="plan-summary-label">Streckensumme</div>
-          <div class="plan-summary-value" id="summary-distance">0 m</div>
-        </div>
-        <div class="plan-summary-card">
-          <div class="plan-summary-label">Geschätzte Arbeitszeit</div>
-          <div class="plan-summary-value" id="summary-work-time">00:00</div>
-        </div>
-        <div class="plan-summary-card">
-          <div class="plan-summary-label">Geschätzte Pausenzeit</div>
-          <div class="plan-summary-value" id="summary-recovery-time">00:00</div>
-        </div>
+      <div class="builder-grid">
+        <input id="segment-name" placeholder="Name" value="Intervall" />
+        <select id="segment-type">
+          <option value="strecke">Strecke</option>
+          <option value="zeit">Zeit</option>
+        </select>
+        <input
+          id="segment-target"
+          type="number"
+          placeholder="Ziel"
+          value="400"
+        />
+        <input
+          id="segment-tempo"
+          type="number"
+          step="0.1"
+          placeholder="Tempo"
+          value="12"
+        />
+        <button id="btn-add-segment">Segment hinzufügen</button>
       </div>
 
       <div class="segment-list" id="segment-list"></div>
@@ -598,10 +345,7 @@
 
       <div class="template-list" id="template-list"></div>
 
-      <details class="json-editor-panel">
-        <summary>JSON-Editor für Experten</summary>
-        <div class="json-editor-panel-content">
-          <textarea id="workout-json">
+      <textarea id="workout-json">
 [
   { "name": "Einlaufen", "typ": "zeit", "ziel": 15, "tempo": 6.0 },
   { "name": "Intervall 1", "typ": "strecke", "ziel": 100, "tempo": 10.0 },
@@ -609,24 +353,31 @@
   { "name": "Intervall 2", "typ": "strecke", "ziel": 100, "tempo": 10.0 },
   { "name": "Trabpause 2", "typ": "zeit", "ziel": 20, "tempo": 6.0 },
   { "name": "Auslaufen", "typ": "zeit", "ziel": 15, "tempo": 4.0 }
-]</textarea>
-        </div>
-      </details>
+]</textarea
+      >
+    </div>
+
+    <div class="section">
+      <h2>Aktueller Schritt</h2>
+      <p id="current-step-info">Kein Training aktiv</p>
+      <p id="step-countdown">Verbleibend: --</p>
     </div>
 
     <script>
-      const APP_VERSION = "3.0.2";
+      const APP_VERSION = "2.0.9";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
       const TREADMILL_START_COUNTDOWN_MS = 3500;
       const HEART_RATE_SERVICE_UUID = 0x180d;
       const HEART_RATE_MEASUREMENT_CHAR_UUID = 0x2a37;
+      const HEART_RATE_SERVICE_ID = "heart_rate";
 
       let bluetoothDevice = null;
       let controlPointChar = null;
       let treadmillDataChar = null;
       let heartRateChar = null;
+      let telemetryChars = [];
 
       let workoutSteps = [];
       let currentStepIndex = -1;
@@ -638,9 +389,17 @@
       let totalSeconds = 0;
       let timerInterval = null;
       let workoutFinished = false;
+      let lastCommandedSpeedKmh = 0;
       let lastTreadmillDataTimestamp = 0;
+      let dataPollInterval = null;
+      let hrPollInterval = null;
       let ftmsNotifyCount = 0;
+      let ftmsReadCount = 0;
+      let lastFtmsReadError = "";
+      let lastTelemetrySource = "none";
       let hrNotifyCount = 0;
+      let hrReadCount = 0;
+      let lastHrReadError = "";
 
       // Fallback Variablen für interne Distanzberechnung
       let lastDataTime = 0;
@@ -663,69 +422,25 @@
       const segmentTargetInput = document.getElementById("segment-target");
       const segmentTempoInput = document.getElementById("segment-tempo");
       const btnAddSegment = document.getElementById("btn-add-segment");
-      const repeatSetCountInput = document.getElementById("repeat-set-count");
-      const repeatCountInput = document.getElementById("repeat-count");
-      const repeatWorkNameInput = document.getElementById("repeat-work-name");
-      const repeatWorkTypeSelect = document.getElementById("repeat-work-type");
-      const repeatWorkTargetInput = document.getElementById(
-        "repeat-work-target",
-      );
-      const repeatWorkTempoInput = document.getElementById("repeat-work-tempo");
-      const repeatRecoveryNameInput = document.getElementById(
-        "repeat-recovery-name",
-      );
-      const repeatRecoveryTypeSelect = document.getElementById(
-        "repeat-recovery-type",
-      );
-      const repeatRecoveryTargetInput = document.getElementById(
-        "repeat-recovery-target",
-      );
-      const repeatRecoveryTempoInput = document.getElementById(
-        "repeat-recovery-tempo",
-      );
-      const repeatIncludeRecoverySelect = document.getElementById(
-        "repeat-include-recovery",
-      );
-      const repeatIncludeSetRecoverySelect = document.getElementById(
-        "repeat-include-set-recovery",
-      );
-      const repeatSetRecoveryNameInput = document.getElementById(
-        "repeat-set-recovery-name",
-      );
-      const repeatSetRecoveryTypeSelect = document.getElementById(
-        "repeat-set-recovery-type",
-      );
-      const repeatSetRecoveryTargetInput = document.getElementById(
-        "repeat-set-recovery-target",
-      );
-      const repeatSetRecoveryTempoInput = document.getElementById(
-        "repeat-set-recovery-tempo",
-      );
-      const btnAddRepeatBlock = document.getElementById("btn-add-repeat-block");
-      const btnLoad8x400 = document.getElementById("btn-load-8x400");
-      const repeatPreview = document.getElementById("repeat-preview");
       const segmentList = document.getElementById("segment-list");
-      const summarySegments = document.getElementById("summary-segments");
-      const summaryDistance = document.getElementById("summary-distance");
-      const summaryWorkTime = document.getElementById("summary-work-time");
-      const summaryRecoveryTime = document.getElementById(
-        "summary-recovery-time",
-      );
       const templateNameInput = document.getElementById("template-name");
       const btnSaveTemplate = document.getElementById("btn-save-template");
       const templateList = document.getElementById("template-list");
       const TEMPLATE_STORAGE_KEY = "ftms-workout-templates";
 
       if (debugOutput) {
-        debugOutput.innerText = `Version: ${APP_VERSION}\nSummary: Trackpoints=0 | letzte HR=-- | letzte Daten vor=0s | FTMS notify=0 | HR notify=0\nDebug: Warte auf FTMS-Daten...`;
+        debugOutput.innerText = `Version: ${APP_VERSION}\nSummary: Trackpoints=0 | HR erkannt=nein | letzte HR=-- | letzte Daten vor=0s\nDebug-Info: Warte auf Daten...`;
       }
 
       function updateLiveMetrics() {
         document.getElementById("val-speed").innerText =
           currentSpeed.toFixed(1) + " km/h";
         document.getElementById("val-dist").innerText = currentDistance + " m";
-        document.getElementById("val-hr").innerText =
-          currentHR > 0 ? currentHR + " bpm" : "-- bpm";
+        if (currentHR > 0) {
+          document.getElementById("val-hr").innerText = currentHR + " bpm";
+        } else {
+          document.getElementById("val-hr").innerText = "-- bpm";
+        }
       }
 
       function appendTrackpointIfNeeded() {
@@ -750,11 +465,19 @@
       }
 
       function buildDebugSummaryLine() {
+        const hrDetected = currentHR > 0 ? "ja" : "nein";
         const secondsSincePacket = Math.max(
           0,
           Math.round((Date.now() - lastTreadmillDataTimestamp) / 1000),
         );
-        return `Summary: Trackpoints=${trackpoints.length} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s | FTMS notify=${ftmsNotifyCount} | HR notify=${hrNotifyCount}`;
+        const ftmsTotal = ftmsNotifyCount + ftmsReadCount;
+        const readError = lastFtmsReadError
+          ? ` | ReadErr=${lastFtmsReadError}`
+          : "";
+        const hrReadError = lastHrReadError
+          ? ` | HRReadErr=${lastHrReadError}`
+          : "";
+        return `Summary: Trackpoints=${trackpoints.length} | HR erkannt=${hrDetected} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s | FTMS notify/read=${ftmsNotifyCount}/${ftmsReadCount} (total ${ftmsTotal}) | HR notify/read=${hrNotifyCount}/${hrReadCount} | Source=${lastTelemetrySource}${readError}${hrReadError}`;
       }
 
       function updateDebugSummaryOnly() {
@@ -774,10 +497,11 @@
         const flags = value.getUint8(0);
         const is16Bit = (flags & 0x01) !== 0;
         const hr = is16Bit ? value.getUint16(1, true) : value.getUint8(1);
-        if (!Number.isInteger(hr) || hr < 30 || hr > 220) return;
-        currentHR = hr;
-        updateLiveMetrics();
-        updateDebugSummaryOnly();
+        if (Number.isInteger(hr) && hr >= 30 && hr <= 220) {
+          currentHR = hr;
+          updateLiveMetrics();
+          updateDebugSummaryOnly();
+        }
       }
 
       function handleHeartRateMeasurement(event) {
@@ -802,20 +526,79 @@
       }
 
       async function requestFtmsDevice() {
-        return await navigator.bluetooth.requestDevice({
+        const baseOptions = {
           filters: [{ services: [FTMS_SERVICE_UUID] }],
-          optionalServices: [HEART_RATE_SERVICE_UUID],
-        });
+        };
+
+        try {
+          return await navigator.bluetooth.requestDevice({
+            ...baseOptions,
+            optionalServices: [HEART_RATE_SERVICE_ID, HEART_RATE_SERVICE_UUID],
+          });
+        } catch (errorWithOptionalServices) {
+          console.warn(
+            "requestDevice mit optionalServices fehlgeschlagen, Retry ohne optionalServices:",
+            getReadableError(errorWithOptionalServices),
+          );
+          return await navigator.bluetooth.requestDevice(baseOptions);
+        }
+      }
+
+      function addTelemetryChar(char) {
+        if (!char) return;
+        if (!telemetryChars.includes(char)) {
+          telemetryChars.push(char);
+        }
+      }
+
+      function normalizeUuid(uuid) {
+        return String(uuid).toLowerCase();
+      }
+
+      function isTelemetryCandidate(char) {
+        if (!char || !char.properties) return false;
+        if (!char.properties.notify && !char.properties.indicate) return false;
+        const uuid = normalizeUuid(char.uuid);
+        // Exkludiere Control Point/Status (keine laufenden Sensordaten).
+        if (uuid.endsWith("2ad9") || uuid.endsWith("2ada")) return false;
+        return true;
+      }
+
+      function createTelemetryHandler(sourceTag) {
+        return (event) => {
+          processTreadmillValue(event.target.value, sourceTag);
+        };
+      }
+
+      async function subscribeTelemetryChar(char, sourceTag) {
+        if (!char) return;
+        if (telemetryChars.includes(char)) return;
+        try {
+          if (typeof char.startNotifications === "function") {
+            await char.startNotifications();
+          }
+          const handler = createTelemetryHandler(sourceTag);
+          char.addEventListener("characteristicvaluechanged", handler);
+          addTelemetryChar(char);
+        } catch (streamErr) {
+          console.log(
+            `Telemetry-Subscribe fehlgeschlagen (${sourceTag}):`,
+            getReadableError(streamErr),
+          );
+        }
       }
 
       function extractHeartRate(value, preferredOffset) {
         const isPlausibleHr = (candidate) =>
           Number.isInteger(candidate) && candidate >= 30 && candidate <= 220;
 
-        const candidates = [16];
+        const candidates = [];
+        candidates.push(16);
         if (Number.isInteger(preferredOffset)) {
-          candidates.push(preferredOffset, preferredOffset + 1);
+          candidates.push(preferredOffset);
+          candidates.push(preferredOffset + 1);
         }
+        candidates.push(value.byteLength - 1, value.byteLength - 2);
 
         for (const position of candidates) {
           if (position >= 0 && position < value.byteLength) {
@@ -826,7 +609,80 @@
           }
         }
 
+        for (let i = value.byteLength - 1; i >= 0; i--) {
+          const candidate = value.getUint8(i);
+          if (isPlausibleHr(candidate)) {
+            return candidate;
+          }
+        }
+
         return 0;
+      }
+
+      function resetDataPolling() {
+        if (dataPollInterval) {
+          clearInterval(dataPollInterval);
+          dataPollInterval = null;
+        }
+        if (hrPollInterval) {
+          clearInterval(hrPollInterval);
+          hrPollInterval = null;
+        }
+      }
+
+      function startHeartRatePollingFallback() {
+        if (!heartRateChar || typeof heartRateChar.readValue !== "function") {
+          return;
+        }
+        if (hrPollInterval) {
+          clearInterval(hrPollInterval);
+          hrPollInterval = null;
+        }
+        hrPollInterval = setInterval(async () => {
+          try {
+            const value = await heartRateChar.readValue();
+            hrReadCount++;
+            lastHrReadError = "";
+            parseHeartRateMeasurement(value);
+          } catch (hrReadErr) {
+            lastHrReadError = getReadableError(hrReadErr) || "hr read failed";
+            updateDebugSummaryOnly();
+          }
+        }, 1000);
+      }
+
+      function startDataPollingFallback() {
+        resetDataPolling();
+        if (!telemetryChars.length && !treadmillDataChar) return;
+
+        dataPollInterval = setInterval(async () => {
+          const candidates = telemetryChars.length
+            ? telemetryChars
+            : treadmillDataChar
+              ? [treadmillDataChar]
+              : [];
+          let readSucceeded = false;
+
+          for (const candidate of candidates) {
+            if (!candidate || typeof candidate.readValue !== "function") {
+              continue;
+            }
+            try {
+              const value = await candidate.readValue();
+              ftmsReadCount++;
+              lastFtmsReadError = "";
+              processTreadmillValue(value, `read:${candidate.uuid}`);
+              readSucceeded = true;
+              break;
+            } catch (error) {
+              lastFtmsReadError = getReadableError(error) || "read failed";
+            }
+          }
+
+          if (!readSucceeded) {
+            updateDebugSummaryOnly();
+          }
+        }, 1000);
       }
 
       function parseWorkoutSteps() {
@@ -840,207 +696,6 @@
 
       function updateWorkoutJson() {
         txtJson.value = JSON.stringify(workoutSteps, null, 2);
-      }
-
-      function formatDuration(totalSecondsValue) {
-        const total = Math.max(0, Math.round(totalSecondsValue || 0));
-        const hours = Math.floor(total / 3600);
-        const minutes = Math.floor((total % 3600) / 60);
-        const seconds = total % 60;
-        if (hours > 0) {
-          return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-        }
-        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-      }
-
-      function estimateStepSeconds(step) {
-        if (!step) return 0;
-        if (step.typ === "zeit") {
-          return Number(step.ziel) || 0;
-        }
-        const distanceMeters = Number(step.ziel) || 0;
-        const speedKmh = Number(step.tempo) || 0;
-        if (distanceMeters <= 0 || speedKmh <= 0) return 0;
-        return distanceMeters / (speedKmh / 3.6);
-      }
-
-      function isRecoveryStep(step) {
-        const name = String(step?.name || "").toLowerCase();
-        return /(pause|erholung|recovery|trab)/i.test(name);
-      }
-
-      function updatePlanSummary() {
-        if (!summarySegments) return;
-
-        const summary = workoutSteps.reduce(
-          (accumulator, step) => {
-            accumulator.segmentCount += 1;
-            if (step.typ === "strecke") {
-              accumulator.distanceMeters += Number(step.ziel) || 0;
-            }
-
-            const estimatedSeconds = estimateStepSeconds(step);
-            if (isRecoveryStep(step)) {
-              accumulator.recoverySeconds += estimatedSeconds;
-            } else {
-              accumulator.workSeconds += estimatedSeconds;
-            }
-
-            return accumulator;
-          },
-          {
-            segmentCount: 0,
-            distanceMeters: 0,
-            workSeconds: 0,
-            recoverySeconds: 0,
-          },
-        );
-
-        summarySegments.innerText = String(summary.segmentCount);
-        summaryDistance.innerText = `${summary.distanceMeters} m`;
-        summaryWorkTime.innerText = formatDuration(summary.workSeconds);
-        summaryRecoveryTime.innerText = formatDuration(summary.recoverySeconds);
-      }
-
-      function formatTargetByType(type, target) {
-        return type === "zeit" ? `${target} s` : `${target} m`;
-      }
-
-      function updateRepeatPreview() {
-        if (!repeatPreview) return;
-        const setCount = Math.max(1, Number(repeatSetCountInput.value) || 1);
-        const repeatCount = Math.max(1, Number(repeatCountInput.value) || 1);
-        const workName = repeatWorkNameInput.value.trim() || "Intervall";
-        const workType = repeatWorkTypeSelect.value;
-        const workTarget = Number(repeatWorkTargetInput.value) || 0;
-        const recoveryEnabled = repeatIncludeRecoverySelect.value === "yes";
-        const recoveryName = repeatRecoveryNameInput.value.trim() || "Erholung";
-        const recoveryType = repeatRecoveryTypeSelect.value;
-        const recoveryTarget = Number(repeatRecoveryTargetInput.value) || 0;
-        const setRecoveryEnabled =
-          repeatIncludeSetRecoverySelect.value === "yes" && setCount > 1;
-        const setRecoveryName =
-          repeatSetRecoveryNameInput.value.trim() || "Serienpause";
-        const setRecoveryType = repeatSetRecoveryTypeSelect.value;
-        const setRecoveryTarget = Number(repeatSetRecoveryTargetInput.value) || 0;
-
-        const workLabel = `${repeatCount} x ${formatTargetByType(workType, workTarget)} ${workName}`;
-        const setLabel = setCount > 1 ? `${setCount} Sets aus ${workLabel}` : workLabel;
-        if (!recoveryEnabled) {
-          if (!setRecoveryEnabled) {
-            repeatPreview.innerText = `Vorschau: ${setLabel} ohne Erholungssegment.`;
-            return;
-          }
-
-          repeatPreview.innerText = `Vorschau: ${setLabel} mit ${formatTargetByType(setRecoveryType, setRecoveryTarget)} ${setRecoveryName} zwischen den Sets.`;
-          return;
-        }
-
-        const recoveryLabel = `${formatTargetByType(recoveryType, recoveryTarget)} ${recoveryName}`;
-        if (!setRecoveryEnabled) {
-          repeatPreview.innerText = `Vorschau: ${setLabel} mit ${recoveryLabel} dazwischen.`;
-          return;
-        }
-
-        repeatPreview.innerText = `Vorschau: ${setCount} Sets aus ${workLabel}, mit ${recoveryLabel} zwischen den Wiederholungen und ${formatTargetByType(setRecoveryType, setRecoveryTarget)} ${setRecoveryName} zwischen den Sets.`;
-      }
-
-      function createRepeatSteps() {
-        const setCount = Math.max(1, Number(repeatSetCountInput.value) || 1);
-        const repeatCount = Math.max(1, Number(repeatCountInput.value) || 1);
-        const workName = repeatWorkNameInput.value.trim() || "Intervall";
-        const workType = repeatWorkTypeSelect.value;
-        const workTarget = Number(repeatWorkTargetInput.value);
-        const workTempo = Number(repeatWorkTempoInput.value);
-        const includeRecovery = repeatIncludeRecoverySelect.value === "yes";
-        const recoveryName = repeatRecoveryNameInput.value.trim() || "Erholung";
-        const recoveryType = repeatRecoveryTypeSelect.value;
-        const recoveryTarget = Number(repeatRecoveryTargetInput.value);
-        const recoveryTempo = Number(repeatRecoveryTempoInput.value);
-        const includeSetRecovery =
-          repeatIncludeSetRecoverySelect.value === "yes" && setCount > 1;
-        const setRecoveryName =
-          repeatSetRecoveryNameInput.value.trim() || "Serienpause";
-        const setRecoveryType = repeatSetRecoveryTypeSelect.value;
-        const setRecoveryTarget = Number(repeatSetRecoveryTargetInput.value);
-        const setRecoveryTempo = Number(repeatSetRecoveryTempoInput.value);
-
-        if (!Number.isFinite(workTarget) || !Number.isFinite(workTempo)) {
-          return [];
-        }
-
-        if (
-          includeRecovery &&
-          (!Number.isFinite(recoveryTarget) || !Number.isFinite(recoveryTempo))
-        ) {
-          return [];
-        }
-
-        if (
-          includeSetRecovery &&
-          (!Number.isFinite(setRecoveryTarget) ||
-            !Number.isFinite(setRecoveryTempo))
-        ) {
-          return [];
-        }
-
-        const steps = [];
-        for (let setIndex = 1; setIndex <= setCount; setIndex++) {
-          for (let repeatIndex = 1; repeatIndex <= repeatCount; repeatIndex++) {
-            steps.push({
-              name:
-                setCount > 1
-                  ? `${workName} S${setIndex} R${repeatIndex}`
-                  : `${workName} ${repeatIndex}`,
-              typ: workType,
-              ziel: workTarget,
-              tempo: workTempo,
-            });
-
-            if (includeRecovery) {
-              steps.push({
-                name:
-                  setCount > 1
-                    ? `${recoveryName} S${setIndex} R${repeatIndex}`
-                    : `${recoveryName} ${repeatIndex}`,
-                typ: recoveryType,
-                ziel: recoveryTarget,
-                tempo: recoveryTempo,
-              });
-            }
-          }
-
-          if (includeSetRecovery && setIndex < setCount) {
-            steps.push({
-              name: `${setRecoveryName} ${setIndex}`,
-              typ: setRecoveryType,
-              ziel: setRecoveryTarget,
-              tempo: setRecoveryTempo,
-            });
-          }
-        }
-
-        return steps;
-      }
-
-      function loadRepeatPreset() {
-        repeatSetCountInput.value = "1";
-        repeatCountInput.value = "8";
-        repeatWorkNameInput.value = "Intervall";
-        repeatWorkTypeSelect.value = "strecke";
-        repeatWorkTargetInput.value = "400";
-        repeatWorkTempoInput.value = "14";
-        repeatRecoveryNameInput.value = "Trabpause";
-        repeatRecoveryTypeSelect.value = "zeit";
-        repeatRecoveryTargetInput.value = "180";
-        repeatRecoveryTempoInput.value = "6";
-        repeatIncludeRecoverySelect.value = "yes";
-        repeatIncludeSetRecoverySelect.value = "no";
-        repeatSetRecoveryNameInput.value = "Serienpause";
-        repeatSetRecoveryTypeSelect.value = "zeit";
-        repeatSetRecoveryTargetInput.value = "300";
-        repeatSetRecoveryTempoInput.value = "6";
-        updateRepeatPreview();
       }
 
       function formatStepTarget(step) {
@@ -1082,7 +737,6 @@
           fragment.appendChild(item);
         });
         segmentList.appendChild(fragment);
-        updatePlanSummary();
       }
 
       let draggedIndex = null;
@@ -1258,38 +912,6 @@
         renderSegmentList();
       });
 
-      btnAddRepeatBlock.addEventListener("click", () => {
-        const repeatSteps = createRepeatSteps();
-        if (!repeatSteps.length) return;
-        workoutSteps.push(...repeatSteps);
-        updateWorkoutJson();
-        renderSegmentList();
-      });
-
-      btnLoad8x400.addEventListener("click", loadRepeatPreset);
-
-      [
-        repeatSetCountInput,
-        repeatCountInput,
-        repeatWorkNameInput,
-        repeatWorkTypeSelect,
-        repeatWorkTargetInput,
-        repeatWorkTempoInput,
-        repeatRecoveryNameInput,
-        repeatRecoveryTypeSelect,
-        repeatRecoveryTargetInput,
-        repeatRecoveryTempoInput,
-        repeatIncludeRecoverySelect,
-        repeatIncludeSetRecoverySelect,
-        repeatSetRecoveryNameInput,
-        repeatSetRecoveryTypeSelect,
-        repeatSetRecoveryTargetInput,
-        repeatSetRecoveryTempoInput,
-      ].forEach((element) => {
-        element.addEventListener("input", updateRepeatPreview);
-        element.addEventListener("change", updateRepeatPreview);
-      });
-
       segmentList.addEventListener("input", (event) => {
         const field = event.target.dataset.field;
         const index = Number(event.target.dataset.index);
@@ -1362,33 +984,43 @@
       workoutSteps = parseWorkoutSteps();
       renderSegmentList();
       renderTemplateList();
-      updateRepeatPreview();
-      updatePlanSummary();
 
       btnConnect.addEventListener("click", async () => {
         try {
           if (!navigator.bluetooth) {
             throw new Error(
-              "Web Bluetooth wird auf diesem Gerät oder Browser nicht unterstützt. Bitte nutze Google Chrome auf dem Desktop.",
+              "Web Bluetooth wird auf diesem Gerät oder Browser nicht unterstützt. Bitte nutze Safari auf iPhone oder einen Browser mit Web-Bluetooth-Unterstützung.",
             );
           }
 
           txtStatus.innerText = "Suche nach Bluetooth-Geräten...";
           bluetoothDevice = await requestFtmsDevice();
 
-          ftmsNotifyCount = 0;
-          hrNotifyCount = 0;
-          lastTreadmillDataTimestamp = 0;
-          currentHR = 0;
-          updateLiveMetrics();
-          updateDebugSummaryOnly();
-
           txtStatus.innerText = "Verbinde mit GATT Server...";
           const server = await bluetoothDevice.gatt.connect();
 
           txtStatus.innerText = "Lese FTMS Service...";
           const service = await server.getPrimaryService(FTMS_SERVICE_UUID);
+          telemetryChars = [];
 
+          try {
+            const allChars = await service.getCharacteristics();
+            const telemetryCandidates = allChars.filter(isTelemetryCandidate);
+            for (const candidate of telemetryCandidates) {
+              await subscribeTelemetryChar(
+                candidate,
+                `notify:${candidate.uuid}`,
+              );
+            }
+          } catch (charsErr) {
+            console.log(
+              "Konnte FTMS-Characteristics nicht vollständig lesen:",
+              getReadableError(charsErr),
+            );
+          }
+
+          // Optionaler HR-Fallback: falls FTMS-Daten auf iOS unvollständig sind,
+          // versuchen wir die Heart-Rate-Characteristic direkt.
           try {
             const hrService = await server.getPrimaryService(
               HEART_RATE_SERVICE_UUID,
@@ -1405,6 +1037,7 @@
               "characteristicvaluechanged",
               handleHeartRateMeasurement,
             );
+            startHeartRatePollingFallback();
           } catch (hrErr) {
             console.log(
               "Heart Rate Service nicht verfügbar, nutze FTMS-HR:",
@@ -1413,18 +1046,48 @@
           }
 
           txtStatus.innerText = "Verbinde Daten-Streaming...";
-          treadmillDataChar = await service.getCharacteristic(
-            TREADMILL_DATA_CHAR_UUID,
-          );
-          await treadmillDataChar.startNotifications();
-          treadmillDataChar.removeEventListener(
-            "characteristicvaluechanged",
-            handleTreadmillData,
-          );
-          treadmillDataChar.addEventListener(
-            "characteristicvaluechanged",
-            handleTreadmillData,
-          );
+          try {
+            treadmillDataChar = await service.getCharacteristic(
+              TREADMILL_DATA_CHAR_UUID,
+            );
+            await subscribeTelemetryChar(
+              treadmillDataChar,
+              `notify:${treadmillDataChar.uuid}`,
+            );
+            treadmillDataChar.oncharacteristicvaluechanged =
+              handleTreadmillData;
+            addTelemetryChar(treadmillDataChar);
+          } catch (dataCharErr) {
+            treadmillDataChar = null;
+            console.log(
+              "Treadmill Data Characteristic nicht direkt verfügbar:",
+              getReadableError(dataCharErr),
+            );
+          }
+
+          // Initiales read direkt nach dem Verbinden erhöht die Chance,
+          // auf iOS/Bluefy früh ein erstes FTMS-Paket zu erhalten.
+          try {
+            const initialReadCandidate = treadmillDataChar || telemetryChars[0];
+            if (
+              initialReadCandidate &&
+              typeof initialReadCandidate.readValue === "function"
+            ) {
+              const initialValue = await initialReadCandidate.readValue();
+              ftmsReadCount++;
+              lastFtmsReadError = "";
+              processTreadmillValue(
+                initialValue,
+                `read-initial:${initialReadCandidate.uuid}`,
+              );
+            }
+          } catch (initialReadError) {
+            lastFtmsReadError =
+              getReadableError(initialReadError) || "initial read failed";
+          }
+
+          lastTreadmillDataTimestamp = Date.now();
+          startDataPollingFallback();
 
           txtStatus.innerText = "Verbinde Control Point...";
           controlPointChar = await service.getCharacteristic(
@@ -1465,9 +1128,10 @@
 
       function processTreadmillValue(value, source = "notify") {
         if (value.byteLength < 4) return;
-        if (source === "notify") {
+        if (source.startsWith("notify")) {
           ftmsNotifyCount++;
         }
+        lastTelemetrySource = source;
         lastTreadmillDataTimestamp = Date.now();
 
         const flags = value.getUint16(0, true);
@@ -1505,14 +1169,29 @@
         }
 
         if (debugOutput) {
+          const bytes = Array.from(
+            new Uint8Array(
+              value.buffer.slice(
+                value.byteOffset,
+                value.byteOffset + value.byteLength,
+              ),
+            ),
+          );
+          const byteHex = bytes
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join(" ");
           const parsedValues = [
             `Version: ${APP_VERSION}`,
             buildDebugSummaryLine(),
             `Flags: 0x${flags.toString(16)}`,
+            `Bytes: ${bytes.join(" ")}`,
+            `BytesHex: ${byteHex}`,
             `Speed: ${currentSpeed.toFixed(2)} km/h`,
             `Distance: ${currentDistance} m`,
             `HR: ${currentHR || "--"} bpm`,
+            `ByteOffset: ${byteOffset}`,
             `Length: ${value.byteLength}`,
+            `Source: ${source}`,
             `Time: ${new Date().toLocaleTimeString("de-DE")}`,
           ];
           debugOutput.innerText = parsedValues.join("\n");
@@ -1564,6 +1243,7 @@
       }
 
       async function setTreadmillSpeed(kmh) {
+        lastCommandedSpeedKmh = Math.max(0, kmh);
         const speedRaw = Math.round(Math.max(0, kmh) * 100);
         const bytes = [0x02, speedRaw & 0xff, (speedRaw >> 8) & 0xff];
         await sendFTMSCommand(bytes);
@@ -1616,6 +1296,21 @@
             let mins = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
             let secs = String(totalSeconds % 60).padStart(2, "0");
             document.getElementById("val-time").innerText = mins + ":" + secs;
+
+            // Fallback für Browser, die FTMS-Notifications unzuverlässig liefern.
+            if (
+              isTrainingActive &&
+              Date.now() - lastTreadmillDataTimestamp > 3000 &&
+              lastCommandedSpeedKmh > 0
+            ) {
+              currentSpeed = lastCommandedSpeedKmh;
+              calculatedDistance += currentSpeed / 3.6;
+              currentDistance = Math.max(
+                currentDistance,
+                Math.round(calculatedDistance),
+              );
+              updateLiveMetrics();
+            }
 
             if (isTrainingActive) {
               appendTrackpointIfNeeded();
@@ -1685,6 +1380,7 @@
       async function endWorkout() {
         if (isTrainingActive === false && timerInterval === null) return;
         isTrainingActive = false;
+        resetDataPolling();
         if (timerInterval) {
           clearInterval(timerInterval);
           timerInterval = null;
@@ -1705,7 +1401,7 @@
           .replace(/\"/g, "&quot;")
           .replace(/'/g, "&apos;");
       }
-      function exportTCX() {
+      async function exportTCX() {
         if (trackpoints.length === 0) {
           alert("Keine Trainingsdaten aufgezeichnet.");
           return;
@@ -1845,6 +1541,30 @@ ${workoutStepXml}
         });
         const fileName =
           "FTMS_Workout_" + new Date().toISOString().slice(0, 10) + ".tcx";
+
+        if (
+          navigator.canShare &&
+          navigator.canShare({
+            files: [new File([blob], fileName, { type: blob.type })],
+          })
+        ) {
+          try {
+            await navigator.share({
+              files: [new File([blob], fileName, { type: blob.type })],
+              title: "TCX-Export",
+              text: "Hier ist dein FTMS-Training als TCX-Datei.",
+            });
+            return;
+          } catch (error) {
+            if (error.name === "AbortError") {
+              return;
+            }
+            console.warn(
+              "Share API fehlgeschlagen, fallback auf Download:",
+              error,
+            );
+          }
+        }
 
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
