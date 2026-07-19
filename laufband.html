@@ -364,10 +364,11 @@
     </div>
 
     <script>
-      const APP_VERSION = "2.0.1";
+      const APP_VERSION = "2.0.3";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
+      const TREADMILL_START_COUNTDOWN_MS = 3500;
 
       let bluetoothDevice = null;
       let controlPointChar = null;
@@ -415,7 +416,7 @@
       const TEMPLATE_STORAGE_KEY = "ftms-workout-templates";
 
       if (debugOutput) {
-        debugOutput.innerText = `Version: ${APP_VERSION}\nDebug-Info: Warte auf Daten...`;
+        debugOutput.innerText = `Version: ${APP_VERSION}\nSummary: Trackpoints=0 | HR erkannt=nein | letzte HR=-- | letzte Daten vor=0s\nDebug-Info: Warte auf Daten...`;
       }
 
       function updateLiveMetrics() {
@@ -446,6 +447,45 @@
           stepType: activeStep ? activeStep.typ : "",
           stepTarget: activeStep ? activeStep.ziel : 0,
         });
+      }
+
+      function buildDebugSummaryLine() {
+        const hrDetected = currentHR > 0 ? "ja" : "nein";
+        const secondsSincePacket = Math.max(
+          0,
+          Math.round((Date.now() - lastTreadmillDataTimestamp) / 1000),
+        );
+        return `Summary: Trackpoints=${trackpoints.length} | HR erkannt=${hrDetected} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s`;
+      }
+
+      function extractHeartRate(value, preferredOffset) {
+        const isPlausibleHr = (candidate) =>
+          Number.isInteger(candidate) && candidate >= 30 && candidate <= 220;
+
+        const candidates = [];
+        if (Number.isInteger(preferredOffset)) {
+          candidates.push(preferredOffset);
+          candidates.push(preferredOffset + 1);
+        }
+        candidates.push(16, value.byteLength - 1, value.byteLength - 2);
+
+        for (const position of candidates) {
+          if (position >= 0 && position < value.byteLength) {
+            const candidate = value.getUint8(position);
+            if (isPlausibleHr(candidate)) {
+              return candidate;
+            }
+          }
+        }
+
+        for (let i = value.byteLength - 1; i >= 0; i--) {
+          const candidate = value.getUint8(i);
+          if (isPlausibleHr(candidate)) {
+            return candidate;
+          }
+        }
+
+        return 0;
       }
 
       function resetDataPolling() {
@@ -877,20 +917,8 @@
           lastDataTime = now;
         }
 
-        // 3. Herzfrequenz auslesen aus dem FTMS-Paket
-        let hrCandidate = 0;
-        const isPlausibleHr = (candidate) =>
-          Number.isInteger(candidate) && candidate >= 30 && candidate <= 220;
-
-        const hrPosition = 16;
-        if (hrPosition >= 0 && hrPosition < value.byteLength) {
-          const candidate = value.getUint8(hrPosition);
-          if (isPlausibleHr(candidate)) {
-            hrCandidate = candidate;
-          }
-        }
-
-        currentHR = hrCandidate;
+        // 3. Herzfrequenz robust auslesen (iOS/Bluefy liefert teils andere Offsets)
+        currentHR = extractHeartRate(value, byteOffset);
 
         if (debugOutput) {
           const bytes = Array.from(
@@ -906,6 +934,7 @@
             .join(" ");
           const parsedValues = [
             `Version: ${APP_VERSION}`,
+            buildDebugSummaryLine(),
             `Flags: 0x${flags.toString(16)}`,
             `Bytes: ${bytes.join(" ")}`,
             `BytesHex: ${byteHex}`,
@@ -980,13 +1009,27 @@
         await sendFTMSCommand([0x06]);
       }
 
+      async function stopTreadmillSafely() {
+        // Manche FTMS-Geräte reagieren zuverlässiger auf die Reihenfolge
+        // Geschwindigkeit 0 -> Stop -> kurzer Retry.
+        await setTreadmillSpeed(0);
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        await stopMachine();
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        await stopMachine();
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        await setTreadmillSpeed(0);
+      }
+
       btnStart.addEventListener("click", async () => {
         try {
           workoutSteps = JSON.parse(txtJson.value);
 
           txtStatus.innerText = "Starte Laufband-Automatik...";
           await startMachine();
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          await new Promise((resolve) =>
+            setTimeout(resolve, TREADMILL_START_COUNTDOWN_MS),
+          );
 
           workoutFinished = false;
           currentStepIndex = 0;
@@ -1091,9 +1134,7 @@
           clearInterval(timerInterval);
           timerInterval = null;
         }
-        await stopMachine();
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        await setTreadmillSpeed(0);
+        await stopTreadmillSafely();
         document.getElementById("current-step-info").innerText =
           "Training beendet!";
         document.getElementById("step-countdown").innerText = "--";
