@@ -110,7 +110,7 @@
         grid-template-columns: minmax(180px, 1.4fr) repeat(3, minmax(110px, 0.9fr)) minmax(180px, auto);
         gap: 12px;
         margin-top: 14px;
-        align-items: end;
+        align-items: start;
       }
       .builder-grid input,
       .builder-grid select,
@@ -128,21 +128,121 @@
       .segment-list {
         margin-top: 16px;
         display: grid;
+        gap: 14px;
+      }
+      .segment-cluster {
+        display: grid;
+        gap: 0;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid #353535;
+        background: #222;
+      }
+      .segment-cluster-header {
+        display: grid;
+        gap: 6px;
+        padding: 10px 14px;
+        background: #202020;
+        border-bottom: 1px solid #313131;
+      }
+      .segment-cluster-headline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+      .segment-cluster-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #edf1f3;
+        letter-spacing: 0.02em;
+      }
+      .segment-cluster-meta {
+        color: #95a0a7;
+        font-size: 0.8rem;
+      }
+      .segment-cluster-meta-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .segment-cluster-subtitle {
+        color: #a9b2b8;
+        font-size: 0.79rem;
+      }
+      .segment-set-divider {
+        display: flex;
+        align-items: center;
         gap: 10px;
+        margin: 8px 0 2px;
+      }
+      .segment-set-divider::before,
+      .segment-set-divider::after {
+        content: "";
+        height: 1px;
+        flex: 1;
+        background: #394047;
+      }
+      .segment-set-divider-label {
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8ea0ab;
+      }
+      .segment-cluster--pair {
+        border-color: #2f4f52;
+        background: linear-gradient(180deg, rgba(0, 173, 181, 0.06), rgba(0, 173, 181, 0.02));
+      }
+      .segment-cluster--pair .segment-cluster-header {
+        background: rgba(0, 173, 181, 0.09);
+        border-bottom-color: rgba(0, 173, 181, 0.14);
+      }
+      .segment-cluster--warmup,
+      .segment-cluster--cooldown {
+        border-color: #3a3430;
+        background: linear-gradient(180deg, rgba(255, 187, 92, 0.05), rgba(255, 187, 92, 0.02));
+      }
+      .segment-cluster--warmup .segment-cluster-header,
+      .segment-cluster--cooldown .segment-cluster-header {
+        background: rgba(255, 187, 92, 0.07);
+        border-bottom-color: rgba(255, 187, 92, 0.12);
+      }
+      .segment-cluster--set-recovery {
+        border-color: #33414a;
+        background: linear-gradient(180deg, rgba(144, 202, 249, 0.05), rgba(144, 202, 249, 0.02));
       }
       .segment-item {
         background: #2a2a2a;
         padding: 12px;
-        border-radius: 12px;
         display: grid;
         grid-template-columns: minmax(180px, 1.4fr) repeat(3, minmax(100px, 0.9fr)) auto;
         gap: 10px;
         align-items: center;
         cursor: move;
-        border: 1px solid #353535;
+        border-left: 4px solid #46535c;
+      }
+      .segment-item + .segment-item {
+        border-top: 1px solid #353535;
       }
       .segment-item.dragging {
         opacity: 0.6;
+      }
+      .segment-item--work {
+        border-left-color: #00adb5;
+      }
+      .segment-item--recovery {
+        border-left-color: #6a8d92;
+        background: #25292c;
+      }
+      .segment-item--warmup,
+      .segment-item--cooldown {
+        border-left-color: #c79b5b;
+        background: #282522;
+      }
+      .segment-item--set-recovery {
+        border-left-color: #7ea6b8;
+        background: #24292d;
       }
       .segment-item input,
       .segment-item select {
@@ -232,10 +332,18 @@
       }
       .repeat-builder-grid {
         display: grid;
-        grid-template-columns: minmax(110px, 0.8fr) minmax(170px, 1.2fr) minmax(120px, 0.9fr) minmax(110px, 0.8fr) minmax(120px, 0.8fr) minmax(150px, auto);
         gap: 12px;
         margin-top: 14px;
-        align-items: end;
+        align-items: start;
+      }
+      .repeat-row-primary .repeat-builder-grid {
+        grid-template-columns: minmax(90px, 0.7fr) minmax(110px, 0.8fr) minmax(220px, 1.7fr) minmax(140px, 1fr) minmax(120px, 0.9fr) minmax(120px, 0.9fr);
+      }
+      .repeat-row-secondary .repeat-builder-grid {
+        grid-template-columns: minmax(220px, 1.7fr) minmax(140px, 1fr) minmax(120px, 0.9fr) minmax(120px, 0.9fr) minmax(160px, 1fr) minmax(180px, auto);
+      }
+      .repeat-row-tertiary .repeat-builder-grid {
+        grid-template-columns: minmax(180px, 1.35fr) minmax(220px, 1.6fr) minmax(140px, 1fr) minmax(120px, 0.9fr) minmax(120px, 0.9fr);
       }
       .repeat-builder-grid input,
       .repeat-builder-grid select {
@@ -253,6 +361,7 @@
         color: #c8ced3;
         font-size: 0.84rem;
         font-weight: 600;
+        line-height: 1.3;
       }
       .repeat-row {
         display: grid;
@@ -260,6 +369,21 @@
       }
       .repeat-row + .repeat-row {
         margin-top: 12px;
+      }
+      .builder-field {
+        display: grid;
+        grid-template-rows: auto minmax(44px, auto) 18px;
+        align-content: start;
+      }
+      .builder-field > input,
+      .builder-field > select,
+      .builder-field > button,
+      .builder-field > .preset-buttons,
+      .builder-field > span {
+        grid-row: 2;
+      }
+      .builder-field > .input-hint {
+        grid-row: 3;
       }
       .repeat-preview {
         margin-top: 12px;
@@ -273,8 +397,29 @@
         font-size: 0.8rem;
       }
       .preset-buttons {
-        display: grid;
+        display: flex;
+        flex-wrap: nowrap;
         gap: 8px;
+      }
+      .preset-buttons button {
+        flex: 1;
+        white-space: nowrap;
+        min-width: 0;
+      }
+      .preset-bar {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 10px;
+      }
+      .preset-bar-label {
+        color: #c8ced3;
+        font-size: 0.84rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .preset-bar .preset-buttons {
+        flex: 1;
       }
       .favorite-presets {
         margin-top: 14px;
@@ -348,6 +493,68 @@
         font-weight: 700;
         color: #eef2f4;
       }
+      .segment-overview-toolbar {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .segment-view-toggle {
+        min-height: 36px;
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+      .segment-list.is-compact {
+        gap: 8px;
+      }
+      .segment-list.is-compact .segment-cluster-header {
+        padding: 8px 12px;
+      }
+      .segment-list.is-compact .segment-cluster-subtitle {
+        display: none;
+      }
+      .segment-list.is-compact .segment-item {
+        padding: 8px 10px;
+      }
+      .segment-list.is-compact .segment-item input,
+      .segment-list.is-compact .segment-item select {
+        min-height: 34px;
+        padding: 8px 10px;
+      }
+      .segment-list.is-compact .segment-set-divider {
+        margin: 2px 0 0;
+      }
+      .segment-cluster-toggle-hint {
+        display: none;
+        color: #8f9ba2;
+        font-size: 0.75rem;
+      }
+      .segment-cluster-chevron {
+        display: none;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid #8f9ba2;
+        border-bottom: 2px solid #8f9ba2;
+        transition: transform 0.16s ease;
+        transform: rotate(-45deg);
+      }
+      .segment-list.is-header-only .segment-cluster-header {
+        cursor: pointer;
+      }
+      .segment-list.is-header-only .segment-cluster-toggle-hint {
+        display: block;
+      }
+      .segment-list.is-header-only .segment-cluster-chevron {
+        display: inline-block;
+      }
+      .segment-list.is-header-only .segment-cluster-header[aria-expanded="true"] .segment-cluster-chevron {
+        transform: rotate(45deg);
+      }
+      .segment-list.is-header-only .segment-item {
+        display: none;
+      }
+      .segment-list.is-header-only .segment-cluster.cluster-expanded .segment-item {
+        display: grid;
+      }
       .builder-field button {
         width: 100%;
       }
@@ -357,6 +564,9 @@
         border-radius: 12px;
         background: #242424;
         overflow: hidden;
+      }
+      .planner-card + .planner-card {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
       }
       .json-editor-panel summary {
         cursor: pointer;
@@ -513,7 +723,7 @@
           <h3>Wiederholungsblock</h3>
           <p>Lege Arbeit und Erholung einmal fest, wiederhole die Kombination automatisch und gruppiere sie bei Bedarf zu ganzen Sets.</p>
 
-          <div class="repeat-row">
+          <div class="repeat-row repeat-row-primary">
             <div class="repeat-builder-grid">
               <div class="builder-field">
                 <label for="repeat-set-count">Sets</label>
@@ -543,18 +753,18 @@
                 <label for="repeat-work-tempo">Arbeitstempo</label>
                 <input id="repeat-work-tempo" type="number" min="0" step="0.1" value="14" />
               </div>
-              <div class="builder-field">
-                <label>&nbsp;</label>
-                <div class="preset-buttons">
-                  <button class="btn-secondary" id="btn-load-8x400" type="button">8x400 Vorlage</button>
-                  <button class="btn-secondary" id="btn-load-6x1000" type="button">6x1000 Vorlage</button>
-                  <button class="btn-secondary" id="btn-load-4x2000" type="button">4x2000 Vorlage</button>
-                </div>
+            </div>
+            <div class="preset-bar">
+              <div class="preset-bar-label">Schnellvorlagen</div>
+              <div class="preset-buttons">
+                <button class="btn-secondary" id="btn-load-8x400" type="button">8x400 Vorlage</button>
+                <button class="btn-secondary" id="btn-load-6x1000" type="button">6x1000 Vorlage</button>
+                <button class="btn-secondary" id="btn-load-4x2000" type="button">4x2000 Vorlage</button>
               </div>
             </div>
           </div>
 
-          <div class="repeat-row">
+          <div class="repeat-row repeat-row-secondary">
             <div class="repeat-builder-grid">
               <div class="builder-field">
                 <label for="repeat-recovery-name">Erholungsname</label>
@@ -590,7 +800,7 @@
             </div>
           </div>
 
-          <div class="repeat-row">
+          <div class="repeat-row repeat-row-tertiary">
             <div class="repeat-builder-grid">
               <div class="builder-field">
                 <label for="repeat-include-set-recovery">Serienpause zwischen Sets</label>
@@ -618,10 +828,6 @@
               <div class="builder-field">
                 <label for="repeat-set-recovery-tempo">Serienpausentempo</label>
                 <input id="repeat-set-recovery-tempo" type="number" min="0" step="0.1" value="6" />
-              </div>
-              <div class="builder-field">
-                <label>&nbsp;</label>
-                <span></span>
               </div>
             </div>
           </div>
@@ -668,6 +874,15 @@
         </div>
       </div>
 
+      <div class="segment-overview-toolbar">
+        <button
+          class="btn-secondary segment-view-toggle"
+          id="btn-toggle-segment-view"
+          type="button"
+        >
+          Ansicht: Detailliert
+        </button>
+      </div>
       <div class="segment-list" id="segment-list"></div>
 
       <div class="template-actions">
@@ -698,7 +913,7 @@
     </div>
 
     <script>
-      const APP_VERSION = "3.0.4";
+      const APP_VERSION = "3.3.1";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
@@ -807,6 +1022,9 @@
         "btn-save-favorite-preset",
       );
       const favoritePresetList = document.getElementById("favorite-preset-list");
+      const btnToggleSegmentView = document.getElementById(
+        "btn-toggle-segment-view",
+      );
       const segmentList = document.getElementById("segment-list");
       const summarySegments = document.getElementById("summary-segments");
       const summaryDistance = document.getElementById("summary-distance");
@@ -820,6 +1038,14 @@
       const templateList = document.getElementById("template-list");
       const TEMPLATE_STORAGE_KEY = "ftms-workout-templates";
       const FAVORITE_REPEAT_PRESET_STORAGE_KEY = "ftms-repeat-favorite-presets";
+      const SEGMENT_VIEW_MODE_STORAGE_KEY = "ftms-segment-view-mode";
+      const SEGMENT_VIEW_MODES = ["detailed", "compact", "header"];
+      let segmentViewMode =
+        localStorage.getItem(SEGMENT_VIEW_MODE_STORAGE_KEY) || "detailed";
+      if (!SEGMENT_VIEW_MODES.includes(segmentViewMode)) {
+        segmentViewMode = "detailed";
+      }
+      const expandedHeaderClusters = new Set();
 
       if (debugOutput) {
         debugOutput.innerText = `Version: ${APP_VERSION}\nSummary: Trackpoints=0 | letzte HR=-- | letzte Daten vor=0s | FTMS notify=0 | HR notify=0\nDebug: Warte auf FTMS-Daten...`;
@@ -1364,6 +1590,200 @@
           : `${step.ziel} Meter`;
       }
 
+      function getSegmentKind(step) {
+        const name = String(step?.name || "").toLowerCase();
+        if (/(einlaufen|aufw[aä]rm|warm)/i.test(name)) return "warmup";
+        if (/(auslaufen|cool)/i.test(name)) return "cooldown";
+        if (/(serienpause|setpause|satzpause)/i.test(name)) return "set-recovery";
+        if (isRecoveryStep(step)) return "recovery";
+        return "work";
+      }
+
+      function getClusterTitle(kind) {
+        if (kind === "warmup") return "Aufwärmen";
+        if (kind === "cooldown") return "Auslaufen";
+        if (kind === "set-recovery") return "Serienpause";
+        if (kind === "recovery") return "Erholung";
+        return "Segment";
+      }
+
+      function getSetIndex(step) {
+        const name = String(step?.name || "");
+        const match = name.match(/(?:\bset\s*|\bs\s*)(\d+)\b/i);
+        return match ? Number(match[1]) : null;
+      }
+
+      function getRepeatIndex(step) {
+        const name = String(step?.name || "");
+        const match = name.match(/(?:\brep\s*|\br\s*)(\d+)\b/i);
+        return match ? Number(match[1]) : null;
+      }
+
+      function summarizeClusterSteps(steps) {
+        const summary = {
+          segments: steps.length,
+          distanceMeters: 0,
+          estimatedSeconds: 0,
+          minTempo: Number.POSITIVE_INFINITY,
+          maxTempo: 0,
+        };
+
+        steps.forEach((step) => {
+          if (step.typ === "strecke") {
+            summary.distanceMeters += Number(step.ziel) || 0;
+          }
+          summary.estimatedSeconds += estimateStepSeconds(step);
+          const tempo = Number(step.tempo) || 0;
+          if (tempo > 0) {
+            summary.minTempo = Math.min(summary.minTempo, tempo);
+            summary.maxTempo = Math.max(summary.maxTempo, tempo);
+          }
+        });
+
+        if (summary.minTempo === Number.POSITIVE_INFINITY) {
+          summary.minTempo = 0;
+        }
+
+        return summary;
+      }
+
+      function formatClusterMeta(summary) {
+        const parts = [];
+        parts.push(
+          `${summary.segments} ${summary.segments === 1 ? "Segment" : "Segmente"}`,
+        );
+        if (summary.distanceMeters > 0) {
+          parts.push(`${summary.distanceMeters} m`);
+        }
+        if (summary.estimatedSeconds > 0) {
+          parts.push(`~${formatDuration(summary.estimatedSeconds)}`);
+        }
+        if (summary.maxTempo > 0) {
+          if (summary.minTempo > 0 && summary.minTempo !== summary.maxTempo) {
+            parts.push(
+              `${summary.minTempo.toFixed(1)}-${summary.maxTempo.toFixed(1)} km/h`,
+            );
+          } else {
+            parts.push(`${summary.maxTempo.toFixed(1)} km/h`);
+          }
+        }
+        return parts.join(" • ");
+      }
+
+      function createSetDivider(setIndex) {
+        const divider = document.createElement("div");
+        divider.className = "segment-set-divider";
+        divider.innerHTML = `<span class="segment-set-divider-label">Set ${setIndex}</span>`;
+        return divider;
+      }
+
+      function createSegmentItem(step, index, kind) {
+        const item = document.createElement("div");
+        item.className = `segment-item segment-item--${kind}`;
+        item.draggable = true;
+        item.dataset.index = index;
+        item.innerHTML = `
+          <input type="text" value="${step.name}" data-field="name" data-index="${index}" />
+          <select data-field="typ" data-index="${index}">
+            <option value="strecke" ${step.typ === "strecke" ? "selected" : ""}>Strecke</option>
+            <option value="zeit" ${step.typ === "zeit" ? "selected" : ""}>Zeit</option>
+          </select>
+          <input type="number" value="${step.ziel}" data-field="ziel" data-index="${index}" />
+          <input type="number" step="0.1" value="${step.tempo}" data-field="tempo" data-index="${index}" />
+          <span class="segment-actions">
+            <button type="button" data-action="remove" data-index="${index}">Entfernen</button>
+          </span>
+        `;
+        item.addEventListener("dragstart", handleDragStart);
+        item.addEventListener("dragover", handleDragOver);
+        item.addEventListener("drop", handleDrop);
+        item.addEventListener("dragend", handleDragEnd);
+        return item;
+      }
+
+      function createClusterHeader(title, meta, subtitle = "", clusterKey = "") {
+        const header = document.createElement("div");
+        header.className = "segment-cluster-header";
+        if (clusterKey) {
+          header.dataset.clusterKey = clusterKey;
+        }
+        header.innerHTML = `
+          <div class="segment-cluster-headline">
+            <div class="segment-cluster-title">${title}</div>
+            <div class="segment-cluster-meta-wrap">
+              <div class="segment-cluster-meta">${meta}</div>
+              <span class="segment-cluster-chevron" aria-hidden="true"></span>
+            </div>
+          </div>
+          ${subtitle ? `<div class="segment-cluster-subtitle">${subtitle}</div>` : ""}
+          <div class="segment-cluster-toggle-hint">Zum Aufklappen klicken</div>
+        `;
+        header.setAttribute("role", "button");
+        header.tabIndex = 0;
+        header.addEventListener("click", () => {
+          if (segmentViewMode !== "header") return;
+          const key = header.dataset.clusterKey;
+          if (!key) return;
+          if (expandedHeaderClusters.has(key)) {
+            expandedHeaderClusters.delete(key);
+          } else {
+            expandedHeaderClusters.add(key);
+          }
+          renderSegmentList();
+        });
+        header.addEventListener("keydown", (event) => {
+          if (segmentViewMode !== "header") return;
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          header.click();
+        });
+        return header;
+      }
+
+      function applyClusterExpandedState(cluster, clusterKey) {
+        if (!cluster || !clusterKey) return;
+        const isExpanded = expandedHeaderClusters.has(clusterKey);
+        cluster.classList.toggle("cluster-expanded", isExpanded);
+        const header = cluster.querySelector(".segment-cluster-header");
+        if (header) {
+          header.setAttribute("aria-expanded", String(isExpanded));
+          const hint = header.querySelector(".segment-cluster-toggle-hint");
+          if (hint) {
+            hint.textContent = isExpanded
+              ? "Zum Einklappen klicken"
+              : "Zum Aufklappen klicken";
+          }
+        }
+      }
+
+      function applySegmentViewMode() {
+        if (!segmentList || !btnToggleSegmentView) return;
+        const isCompact = segmentViewMode === "compact";
+        const isHeaderOnly = segmentViewMode === "header";
+        segmentList.classList.toggle("is-compact", isCompact);
+        segmentList.classList.toggle("is-header-only", isHeaderOnly);
+        if (segmentViewMode === "compact") {
+          btnToggleSegmentView.textContent = "Ansicht: Kompakt";
+        } else if (segmentViewMode === "header") {
+          btnToggleSegmentView.textContent = "Ansicht: Nur-Header";
+        } else {
+          btnToggleSegmentView.textContent = "Ansicht: Detailliert";
+        }
+        btnToggleSegmentView.setAttribute(
+          "aria-pressed",
+          String(segmentViewMode !== "detailed"),
+        );
+      }
+
+      function toggleSegmentViewMode() {
+        const currentIndex = SEGMENT_VIEW_MODES.indexOf(segmentViewMode);
+        const nextIndex = (currentIndex + 1) % SEGMENT_VIEW_MODES.length;
+        segmentViewMode = SEGMENT_VIEW_MODES[nextIndex];
+        localStorage.setItem(SEGMENT_VIEW_MODE_STORAGE_KEY, segmentViewMode);
+        applySegmentViewMode();
+        renderSegmentList();
+      }
+
       function renderSegmentList() {
         if (!segmentList) return;
         segmentList.innerHTML = "";
@@ -1373,30 +1793,102 @@
           ];
         }
         const fragment = document.createDocumentFragment();
-        workoutSteps.forEach((step, index) => {
-          const item = document.createElement("div");
-          item.className = "segment-item";
-          item.draggable = true;
-          item.dataset.index = index;
-          item.innerHTML = `
-            <input type="text" value="${step.name}" data-field="name" data-index="${index}" />
-            <select data-field="typ" data-index="${index}">
-              <option value="strecke" ${step.typ === "strecke" ? "selected" : ""}>Strecke</option>
-              <option value="zeit" ${step.typ === "zeit" ? "selected" : ""}>Zeit</option>
-            </select>
-            <input type="number" value="${step.ziel}" data-field="ziel" data-index="${index}" />
-            <input type="number" step="0.1" value="${step.tempo}" data-field="tempo" data-index="${index}" />
-            <span class="segment-actions">
-              <button type="button" data-action="remove" data-index="${index}">Entfernen</button>
-            </span>
-          `;
-          item.addEventListener("dragstart", handleDragStart);
-          item.addEventListener("dragover", handleDragOver);
-          item.addEventListener("drop", handleDrop);
-          item.addEventListener("dragend", handleDragEnd);
-          fragment.appendChild(item);
-        });
+        let index = 0;
+        let pairCounter = 1;
+        let renderedSetDivider = null;
+
+        while (index < workoutSteps.length) {
+          const step = workoutSteps[index];
+          const kind = getSegmentKind(step);
+          const nextStep = workoutSteps[index + 1];
+          const nextKind = nextStep ? getSegmentKind(nextStep) : null;
+          const stepSet = getSetIndex(step);
+          const stepRepeat = getRepeatIndex(step);
+
+          if (Number.isInteger(stepSet) && stepSet !== renderedSetDivider) {
+            fragment.appendChild(createSetDivider(stepSet));
+            renderedSetDivider = stepSet;
+          }
+
+          const pairedSet = nextStep ? getSetIndex(nextStep) : null;
+          const pairIsSameSet =
+            (stepSet === null && pairedSet === null) ||
+            (Number.isInteger(stepSet) && Number.isInteger(pairedSet) && stepSet === pairedSet);
+
+          if (kind === "work" && nextKind === "recovery" && pairIsSameSet) {
+            const cluster = document.createElement("div");
+            cluster.className = "segment-cluster segment-cluster--pair";
+            const clusterKey = `pair:${index}:${index + 1}`;
+            const title =
+              Number.isInteger(stepSet) && Number.isInteger(stepRepeat)
+                ? `Set ${stepSet} · Wiederholung ${stepRepeat}`
+                : `Intervall-Paar ${pairCounter}`;
+            const subtitle = `${step.name} + ${nextStep.name}`;
+            const meta = formatClusterMeta(summarizeClusterSteps([step, nextStep]));
+            cluster.appendChild(
+              createClusterHeader(
+                title,
+                meta,
+                subtitle,
+                clusterKey,
+              ),
+            );
+            cluster.appendChild(createSegmentItem(step, index, kind));
+            cluster.appendChild(createSegmentItem(nextStep, index + 1, nextKind));
+            applyClusterExpandedState(cluster, clusterKey);
+            fragment.appendChild(cluster);
+            index += 2;
+            pairCounter += 1;
+            continue;
+          }
+
+          const cluster = document.createElement("div");
+          cluster.className = `segment-cluster segment-cluster--${kind}`;
+          const clusterKey = `single:${index}`;
+
+          const baseSummary = summarizeClusterSteps([step]);
+          const meta = formatClusterMeta(baseSummary);
+          let title = getClusterTitle(kind);
+          let subtitle = `${step.name} • ${formatStepTarget(step)}`;
+
+          if (kind === "work" && Number.isInteger(stepSet) && Number.isInteger(stepRepeat)) {
+            title = `Set ${stepSet} · Intervall ${stepRepeat}`;
+          } else if (
+            kind === "recovery" &&
+            Number.isInteger(stepSet) &&
+            Number.isInteger(stepRepeat)
+          ) {
+            title = `Set ${stepSet} · Erholung ${stepRepeat}`;
+          } else if (kind === "set-recovery") {
+            const prevSet = (() => {
+              for (let i = index - 1; i >= 0; i--) {
+                const candidate = getSetIndex(workoutSteps[i]);
+                if (Number.isInteger(candidate)) return candidate;
+              }
+              return null;
+            })();
+            const nextSet = (() => {
+              for (let i = index + 1; i < workoutSteps.length; i++) {
+                const candidate = getSetIndex(workoutSteps[i]);
+                if (Number.isInteger(candidate)) return candidate;
+              }
+              return null;
+            })();
+            if (Number.isInteger(prevSet) && Number.isInteger(nextSet) && prevSet !== nextSet) {
+              title = `Serienpause zwischen Set ${prevSet} und ${nextSet}`;
+            }
+          }
+
+          cluster.appendChild(createClusterHeader(title, meta, subtitle, clusterKey));
+
+          cluster.appendChild(createSegmentItem(step, index, kind));
+          applyClusterExpandedState(cluster, clusterKey);
+          fragment.appendChild(cluster);
+          index += 1;
+        }
+
         segmentList.appendChild(fragment);
+        applySegmentViewMode();
         updatePlanSummary();
       }
 
@@ -1762,6 +2254,11 @@
       updateTimeHints();
       updateRepeatPreview();
       updatePlanSummary();
+      applySegmentViewMode();
+
+      if (btnToggleSegmentView) {
+        btnToggleSegmentView.addEventListener("click", toggleSegmentViewMode);
+      }
 
       btnConnect.addEventListener("click", async () => {
         try {
