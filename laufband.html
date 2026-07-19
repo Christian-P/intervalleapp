@@ -266,9 +266,67 @@
         color: #9fb6b8;
         font-size: 0.92rem;
       }
+      .input-hint {
+        min-height: 18px;
+        margin-top: 6px;
+        color: #8d969c;
+        font-size: 0.8rem;
+      }
+      .preset-buttons {
+        display: grid;
+        gap: 8px;
+      }
+      .favorite-presets {
+        margin-top: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .favorite-preset-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .favorite-preset-form input {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #444;
+        background: #1f1f1f;
+        color: #fff;
+      }
+      .favorite-preset-list {
+        display: grid;
+        gap: 8px;
+      }
+      .favorite-preset-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        background: #1f1f1f;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 10px 12px;
+        cursor: move;
+      }
+      .favorite-preset-item.dragging {
+        opacity: 0.6;
+      }
+      .favorite-preset-item strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+      .favorite-preset-meta {
+        color: #93a0a6;
+        font-size: 0.82rem;
+      }
+      .favorite-preset-actions {
+        display: flex;
+        gap: 8px;
+      }
       .plan-summary {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 12px;
         margin-top: 18px;
       }
@@ -432,6 +490,7 @@
                 placeholder="Ziel"
                 value="400"
               />
+              <div class="input-hint" id="segment-target-hint"></div>
             </div>
             <div class="builder-field">
               <label for="segment-tempo">Tempo km/h</label>
@@ -478,6 +537,7 @@
               <div class="builder-field">
                 <label for="repeat-work-target">Arbeitsziel</label>
                 <input id="repeat-work-target" type="number" min="1" value="400" />
+                <div class="input-hint" id="repeat-work-target-hint"></div>
               </div>
               <div class="builder-field">
                 <label for="repeat-work-tempo">Arbeitstempo</label>
@@ -485,7 +545,11 @@
               </div>
               <div class="builder-field">
                 <label>&nbsp;</label>
-                <button class="btn-secondary" id="btn-load-8x400" type="button">8x400 Vorlage</button>
+                <div class="preset-buttons">
+                  <button class="btn-secondary" id="btn-load-8x400" type="button">8x400 Vorlage</button>
+                  <button class="btn-secondary" id="btn-load-6x1000" type="button">6x1000 Vorlage</button>
+                  <button class="btn-secondary" id="btn-load-4x2000" type="button">4x2000 Vorlage</button>
+                </div>
               </div>
             </div>
           </div>
@@ -506,6 +570,7 @@
               <div class="builder-field">
                 <label for="repeat-recovery-target">Erholungsziel</label>
                 <input id="repeat-recovery-target" type="number" min="1" value="180" />
+                <div class="input-hint" id="repeat-recovery-target-hint"></div>
               </div>
               <div class="builder-field">
                 <label for="repeat-recovery-tempo">Erholungstempo</label>
@@ -548,6 +613,7 @@
               <div class="builder-field">
                 <label for="repeat-set-recovery-target">Serienpausenziel</label>
                 <input id="repeat-set-recovery-target" type="number" min="1" value="300" />
+                <div class="input-hint" id="repeat-set-recovery-target-hint"></div>
               </div>
               <div class="builder-field">
                 <label for="repeat-set-recovery-tempo">Serienpausentempo</label>
@@ -562,6 +628,19 @@
 
           <div class="repeat-preview" id="repeat-preview">
             Vorschau: 8 x 400 m Intervall mit 180 s Trabpause.
+          </div>
+
+          <div class="favorite-presets">
+            <div class="favorite-preset-form">
+              <input
+                id="favorite-preset-name"
+                placeholder="Diese Builder-Konfiguration als Favorit speichern"
+              />
+              <button class="btn-secondary" id="btn-save-favorite-preset" type="button">
+                Favorit speichern
+              </button>
+            </div>
+            <div class="favorite-preset-list" id="favorite-preset-list"></div>
           </div>
         </div>
       </div>
@@ -582,6 +661,10 @@
         <div class="plan-summary-card">
           <div class="plan-summary-label">Geschätzte Pausenzeit</div>
           <div class="plan-summary-value" id="summary-recovery-time">00:00</div>
+        </div>
+        <div class="plan-summary-card">
+          <div class="plan-summary-label">Geschätzte Gesamtdauer</div>
+          <div class="plan-summary-value" id="summary-total-time">00:00</div>
         </div>
       </div>
 
@@ -615,7 +698,7 @@
     </div>
 
     <script>
-      const APP_VERSION = "3.0.2";
+      const APP_VERSION = "3.0.4";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
@@ -641,6 +724,7 @@
       let lastTreadmillDataTimestamp = 0;
       let ftmsNotifyCount = 0;
       let hrNotifyCount = 0;
+      let draggedFavoritePresetIndex = null;
 
       // Fallback Variablen für interne Distanzberechnung
       let lastDataTime = 0;
@@ -661,6 +745,7 @@
       const segmentNameInput = document.getElementById("segment-name");
       const segmentTypeSelect = document.getElementById("segment-type");
       const segmentTargetInput = document.getElementById("segment-target");
+      const segmentTargetHint = document.getElementById("segment-target-hint");
       const segmentTempoInput = document.getElementById("segment-tempo");
       const btnAddSegment = document.getElementById("btn-add-segment");
       const repeatSetCountInput = document.getElementById("repeat-set-count");
@@ -669,6 +754,9 @@
       const repeatWorkTypeSelect = document.getElementById("repeat-work-type");
       const repeatWorkTargetInput = document.getElementById(
         "repeat-work-target",
+      );
+      const repeatWorkTargetHint = document.getElementById(
+        "repeat-work-target-hint",
       );
       const repeatWorkTempoInput = document.getElementById("repeat-work-tempo");
       const repeatRecoveryNameInput = document.getElementById(
@@ -679,6 +767,9 @@
       );
       const repeatRecoveryTargetInput = document.getElementById(
         "repeat-recovery-target",
+      );
+      const repeatRecoveryTargetHint = document.getElementById(
+        "repeat-recovery-target-hint",
       );
       const repeatRecoveryTempoInput = document.getElementById(
         "repeat-recovery-tempo",
@@ -698,12 +789,24 @@
       const repeatSetRecoveryTargetInput = document.getElementById(
         "repeat-set-recovery-target",
       );
+      const repeatSetRecoveryTargetHint = document.getElementById(
+        "repeat-set-recovery-target-hint",
+      );
       const repeatSetRecoveryTempoInput = document.getElementById(
         "repeat-set-recovery-tempo",
       );
       const btnAddRepeatBlock = document.getElementById("btn-add-repeat-block");
       const btnLoad8x400 = document.getElementById("btn-load-8x400");
+      const btnLoad6x1000 = document.getElementById("btn-load-6x1000");
+      const btnLoad4x2000 = document.getElementById("btn-load-4x2000");
       const repeatPreview = document.getElementById("repeat-preview");
+      const favoritePresetNameInput = document.getElementById(
+        "favorite-preset-name",
+      );
+      const btnSaveFavoritePreset = document.getElementById(
+        "btn-save-favorite-preset",
+      );
+      const favoritePresetList = document.getElementById("favorite-preset-list");
       const segmentList = document.getElementById("segment-list");
       const summarySegments = document.getElementById("summary-segments");
       const summaryDistance = document.getElementById("summary-distance");
@@ -711,10 +814,12 @@
       const summaryRecoveryTime = document.getElementById(
         "summary-recovery-time",
       );
+      const summaryTotalTime = document.getElementById("summary-total-time");
       const templateNameInput = document.getElementById("template-name");
       const btnSaveTemplate = document.getElementById("btn-save-template");
       const templateList = document.getElementById("template-list");
       const TEMPLATE_STORAGE_KEY = "ftms-workout-templates";
+      const FAVORITE_REPEAT_PRESET_STORAGE_KEY = "ftms-repeat-favorite-presets";
 
       if (debugOutput) {
         debugOutput.innerText = `Version: ${APP_VERSION}\nSummary: Trackpoints=0 | letzte HR=-- | letzte Daten vor=0s | FTMS notify=0 | HR notify=0\nDebug: Warte auf FTMS-Daten...`;
@@ -838,6 +943,24 @@
         }
       }
 
+      function getFavoriteRepeatPresets() {
+        try {
+          const stored = JSON.parse(
+            localStorage.getItem(FAVORITE_REPEAT_PRESET_STORAGE_KEY) || "[]",
+          );
+          return Array.isArray(stored) ? stored : [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function saveFavoriteRepeatPresets(presets) {
+        localStorage.setItem(
+          FAVORITE_REPEAT_PRESET_STORAGE_KEY,
+          JSON.stringify(presets),
+        );
+      }
+
       function updateWorkoutJson() {
         txtJson.value = JSON.stringify(workoutSteps, null, 2);
       }
@@ -851,6 +974,10 @@
           return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
         }
         return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      }
+
+      function formatSecondsHint(totalSecondsValue) {
+        return `${Math.max(0, Math.round(totalSecondsValue || 0))} s = ${formatDuration(totalSecondsValue)}`;
       }
 
       function estimateStepSeconds(step) {
@@ -900,10 +1027,47 @@
         summaryDistance.innerText = `${summary.distanceMeters} m`;
         summaryWorkTime.innerText = formatDuration(summary.workSeconds);
         summaryRecoveryTime.innerText = formatDuration(summary.recoverySeconds);
+        summaryTotalTime.innerText = formatDuration(
+          summary.workSeconds + summary.recoverySeconds,
+        );
       }
 
       function formatTargetByType(type, target) {
-        return type === "zeit" ? `${target} s` : `${target} m`;
+        return type === "zeit"
+          ? `${target} s (${formatDuration(target)})`
+          : `${target} m`;
+      }
+
+      function updateTargetHint(element, type, target) {
+        if (!element) return;
+        if (type !== "zeit") {
+          element.innerText = "";
+          return;
+        }
+        element.innerText = formatSecondsHint(target);
+      }
+
+      function updateTimeHints() {
+        updateTargetHint(
+          segmentTargetHint,
+          segmentTypeSelect.value,
+          Number(segmentTargetInput.value),
+        );
+        updateTargetHint(
+          repeatWorkTargetHint,
+          repeatWorkTypeSelect.value,
+          Number(repeatWorkTargetInput.value),
+        );
+        updateTargetHint(
+          repeatRecoveryTargetHint,
+          repeatRecoveryTypeSelect.value,
+          Number(repeatRecoveryTargetInput.value),
+        );
+        updateTargetHint(
+          repeatSetRecoveryTargetHint,
+          repeatSetRecoveryTypeSelect.value,
+          Number(repeatSetRecoveryTargetInput.value),
+        );
       }
 
       function updateRepeatPreview() {
@@ -1023,24 +1187,175 @@
         return steps;
       }
 
-      function loadRepeatPreset() {
-        repeatSetCountInput.value = "1";
-        repeatCountInput.value = "8";
-        repeatWorkNameInput.value = "Intervall";
-        repeatWorkTypeSelect.value = "strecke";
-        repeatWorkTargetInput.value = "400";
-        repeatWorkTempoInput.value = "14";
-        repeatRecoveryNameInput.value = "Trabpause";
-        repeatRecoveryTypeSelect.value = "zeit";
-        repeatRecoveryTargetInput.value = "180";
-        repeatRecoveryTempoInput.value = "6";
-        repeatIncludeRecoverySelect.value = "yes";
-        repeatIncludeSetRecoverySelect.value = "no";
-        repeatSetRecoveryNameInput.value = "Serienpause";
-        repeatSetRecoveryTypeSelect.value = "zeit";
-        repeatSetRecoveryTargetInput.value = "300";
-        repeatSetRecoveryTempoInput.value = "6";
+      function loadRepeatPreset(config) {
+        repeatSetCountInput.value = String(config.setCount ?? 1);
+        repeatCountInput.value = String(config.repeatCount ?? 8);
+        repeatWorkNameInput.value = config.workName ?? "Intervall";
+        repeatWorkTypeSelect.value = config.workType ?? "strecke";
+        repeatWorkTargetInput.value = String(config.workTarget ?? 400);
+        repeatWorkTempoInput.value = String(config.workTempo ?? 14);
+        repeatRecoveryNameInput.value = config.recoveryName ?? "Trabpause";
+        repeatRecoveryTypeSelect.value = config.recoveryType ?? "zeit";
+        repeatRecoveryTargetInput.value = String(config.recoveryTarget ?? 180);
+        repeatRecoveryTempoInput.value = String(config.recoveryTempo ?? 6);
+        repeatIncludeRecoverySelect.value = config.includeRecovery === false ? "no" : "yes";
+        repeatIncludeSetRecoverySelect.value =
+          config.includeSetRecovery === true ? "yes" : "no";
+        repeatSetRecoveryNameInput.value =
+          config.setRecoveryName ?? "Serienpause";
+        repeatSetRecoveryTypeSelect.value =
+          config.setRecoveryType ?? "zeit";
+        repeatSetRecoveryTargetInput.value = String(
+          config.setRecoveryTarget ?? 300,
+        );
+        repeatSetRecoveryTempoInput.value = String(
+          config.setRecoveryTempo ?? 6,
+        );
+        updateTimeHints();
         updateRepeatPreview();
+      }
+
+      function getCurrentRepeatPresetConfig() {
+        return {
+          setCount: Math.max(1, Number(repeatSetCountInput.value) || 1),
+          repeatCount: Math.max(1, Number(repeatCountInput.value) || 1),
+          workName: repeatWorkNameInput.value.trim() || "Intervall",
+          workType: repeatWorkTypeSelect.value,
+          workTarget: Number(repeatWorkTargetInput.value) || 0,
+          workTempo: Number(repeatWorkTempoInput.value) || 0,
+          recoveryName: repeatRecoveryNameInput.value.trim() || "Trabpause",
+          recoveryType: repeatRecoveryTypeSelect.value,
+          recoveryTarget: Number(repeatRecoveryTargetInput.value) || 0,
+          recoveryTempo: Number(repeatRecoveryTempoInput.value) || 0,
+          includeRecovery: repeatIncludeRecoverySelect.value === "yes",
+          includeSetRecovery:
+            repeatIncludeSetRecoverySelect.value === "yes",
+          setRecoveryName:
+            repeatSetRecoveryNameInput.value.trim() || "Serienpause",
+          setRecoveryType: repeatSetRecoveryTypeSelect.value,
+          setRecoveryTarget: Number(repeatSetRecoveryTargetInput.value) || 0,
+          setRecoveryTempo: Number(repeatSetRecoveryTempoInput.value) || 0,
+        };
+      }
+
+      function renderFavoriteRepeatPresetList() {
+        if (!favoritePresetList) return;
+        const presets = getFavoriteRepeatPresets();
+        if (!presets.length) {
+          favoritePresetList.innerHTML =
+            '<div class="template-empty">Noch keine Favoriten gespeichert.</div>';
+          return;
+        }
+
+        favoritePresetList.innerHTML = "";
+        const fragment = document.createDocumentFragment();
+
+        presets.forEach((preset, index) => {
+          const item = document.createElement("div");
+          item.className = "favorite-preset-item";
+          item.draggable = true;
+          item.dataset.index = String(index);
+
+          const info = document.createElement("div");
+          const title = document.createElement("strong");
+          title.textContent = preset.name || "Unbenannter Favorit";
+          info.appendChild(title);
+
+          const meta = document.createElement("div");
+          meta.className = "favorite-preset-meta";
+          const config = preset.config || {};
+          const setLabel = config.setCount > 1 ? `${config.setCount} Sets` : "1 Set";
+          meta.textContent = `${setLabel} • ${config.repeatCount || 0} Wiederholungen • ${formatTargetByType(config.workType || "strecke", config.workTarget || 0)}`;
+          info.appendChild(meta);
+
+          const actions = document.createElement("div");
+          actions.className = "favorite-preset-actions";
+
+          const btnLoad = document.createElement("button");
+          btnLoad.type = "button";
+          btnLoad.className = "btn-secondary";
+          btnLoad.dataset.action = "load-favorite";
+          btnLoad.dataset.index = String(index);
+          btnLoad.textContent = "Laden";
+          actions.appendChild(btnLoad);
+
+          const btnDelete = document.createElement("button");
+          btnDelete.type = "button";
+          btnDelete.className = "btn-danger";
+          btnDelete.dataset.action = "delete-favorite";
+          btnDelete.dataset.index = String(index);
+          btnDelete.textContent = "Löschen";
+          actions.appendChild(btnDelete);
+
+          item.appendChild(info);
+          item.appendChild(actions);
+          item.addEventListener("dragstart", handleFavoritePresetDragStart);
+          item.addEventListener("dragover", handleFavoritePresetDragOver);
+          item.addEventListener("drop", handleFavoritePresetDrop);
+          item.addEventListener("dragend", handleFavoritePresetDragEnd);
+          fragment.appendChild(item);
+        });
+
+        favoritePresetList.appendChild(fragment);
+      }
+
+      function saveCurrentRepeatPreset() {
+        const name = favoritePresetNameInput.value.trim();
+        if (!name) return;
+
+        const presets = getFavoriteRepeatPresets();
+        const existingIndex = presets.findIndex(
+          (preset) => preset.name?.toLowerCase() === name.toLowerCase(),
+        );
+        const nextPreset = {
+          name,
+          config: getCurrentRepeatPresetConfig(),
+        };
+
+        if (existingIndex >= 0) {
+          presets[existingIndex] = nextPreset;
+        } else {
+          presets.push(nextPreset);
+        }
+
+        saveFavoriteRepeatPresets(presets);
+        renderFavoriteRepeatPresetList();
+        favoritePresetNameInput.value = name;
+      }
+
+      function handleFavoritePresetDragStart(event) {
+        draggedFavoritePresetIndex = Number(event.currentTarget.dataset.index);
+        event.currentTarget.classList.add("dragging");
+        event.dataTransfer.effectAllowed = "move";
+      }
+
+      function handleFavoritePresetDragOver(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+      }
+
+      function handleFavoritePresetDrop(event) {
+        event.preventDefault();
+        const targetIndex = Number(event.currentTarget.dataset.index);
+        if (
+          draggedFavoritePresetIndex === null ||
+          Number.isNaN(targetIndex) ||
+          draggedFavoritePresetIndex === targetIndex
+        ) {
+          return;
+        }
+
+        const presets = getFavoriteRepeatPresets();
+        const [movedPreset] = presets.splice(draggedFavoritePresetIndex, 1);
+        presets.splice(targetIndex, 0, movedPreset);
+        saveFavoriteRepeatPresets(presets);
+        renderFavoriteRepeatPresetList();
+        draggedFavoritePresetIndex = null;
+      }
+
+      function handleFavoritePresetDragEnd(event) {
+        event.currentTarget.classList.remove("dragging");
+        draggedFavoritePresetIndex = null;
       }
 
       function formatStepTarget(step) {
@@ -1266,7 +1581,74 @@
         renderSegmentList();
       });
 
-      btnLoad8x400.addEventListener("click", loadRepeatPreset);
+      btnLoad8x400.addEventListener("click", () => {
+        loadRepeatPreset({
+          setCount: 1,
+          repeatCount: 8,
+          workName: "Intervall",
+          workType: "strecke",
+          workTarget: 400,
+          workTempo: 14,
+          recoveryName: "Trabpause",
+          recoveryType: "zeit",
+          recoveryTarget: 180,
+          recoveryTempo: 6,
+        });
+      });
+
+      btnLoad6x1000.addEventListener("click", () => {
+        loadRepeatPreset({
+          setCount: 1,
+          repeatCount: 6,
+          workName: "Intervall",
+          workType: "strecke",
+          workTarget: 1000,
+          workTempo: 14,
+          recoveryName: "Trabpause",
+          recoveryType: "zeit",
+          recoveryTarget: 180,
+          recoveryTempo: 6,
+        });
+      });
+
+      btnLoad4x2000.addEventListener("click", () => {
+        loadRepeatPreset({
+          setCount: 1,
+          repeatCount: 4,
+          workName: "Intervall",
+          workType: "strecke",
+          workTarget: 2000,
+          workTempo: 13,
+          recoveryName: "Trabpause",
+          recoveryType: "zeit",
+          recoveryTarget: 240,
+          recoveryTempo: 6,
+        });
+      });
+
+      btnSaveFavoritePreset.addEventListener("click", saveCurrentRepeatPreset);
+
+      favoritePresetList.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const index = Number(button.dataset.index);
+        if (Number.isNaN(index)) return;
+
+        const presets = getFavoriteRepeatPresets();
+        if (!presets[index]) return;
+
+        if (button.dataset.action === "load-favorite") {
+          loadRepeatPreset(presets[index].config || {});
+          favoritePresetNameInput.value = presets[index].name || "";
+          return;
+        }
+
+        if (button.dataset.action === "delete-favorite") {
+          presets.splice(index, 1);
+          saveFavoriteRepeatPresets(presets);
+          renderFavoriteRepeatPresetList();
+        }
+      });
 
       [
         repeatSetCountInput,
@@ -1288,6 +1670,20 @@
       ].forEach((element) => {
         element.addEventListener("input", updateRepeatPreview);
         element.addEventListener("change", updateRepeatPreview);
+      });
+
+      [
+        segmentTypeSelect,
+        segmentTargetInput,
+        repeatWorkTypeSelect,
+        repeatWorkTargetInput,
+        repeatRecoveryTypeSelect,
+        repeatRecoveryTargetInput,
+        repeatSetRecoveryTypeSelect,
+        repeatSetRecoveryTargetInput,
+      ].forEach((element) => {
+        element.addEventListener("input", updateTimeHints);
+        element.addEventListener("change", updateTimeHints);
       });
 
       segmentList.addEventListener("input", (event) => {
@@ -1362,6 +1758,8 @@
       workoutSteps = parseWorkoutSteps();
       renderSegmentList();
       renderTemplateList();
+      renderFavoriteRepeatPresetList();
+      updateTimeHints();
       updateRepeatPreview();
       updatePlanSummary();
 
