@@ -364,15 +364,18 @@
     </div>
 
     <script>
-      const APP_VERSION = "2.0.3";
+      const APP_VERSION = "2.0.4";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
       const TREADMILL_START_COUNTDOWN_MS = 3500;
+      const HEART_RATE_SERVICE_UUID = 0x180d;
+      const HEART_RATE_MEASUREMENT_CHAR_UUID = 0x2a37;
 
       let bluetoothDevice = null;
       let controlPointChar = null;
       let treadmillDataChar = null;
+      let heartRateChar = null;
 
       let workoutSteps = [];
       let currentStepIndex = -1;
@@ -456,6 +459,31 @@
           Math.round((Date.now() - lastTreadmillDataTimestamp) / 1000),
         );
         return `Summary: Trackpoints=${trackpoints.length} | HR erkannt=${hrDetected} | letzte HR=${currentHR || "--"} | letzte Daten vor=${secondsSincePacket}s`;
+      }
+
+      function updateDebugSummaryOnly() {
+        if (!debugOutput) return;
+        const lines = debugOutput.innerText.split("\n");
+        if (!lines.length) return;
+        if (lines.length === 1) {
+          debugOutput.innerText = `${lines[0]}\n${buildDebugSummaryLine()}`;
+          return;
+        }
+        lines[1] = buildDebugSummaryLine();
+        debugOutput.innerText = lines.join("\n");
+      }
+
+      function handleHeartRateMeasurement(event) {
+        const value = event.target.value;
+        if (!value || value.byteLength < 2) return;
+        const flags = value.getUint8(0);
+        const is16Bit = (flags & 0x01) !== 0;
+        const hr = is16Bit ? value.getUint16(1, true) : value.getUint8(1);
+        if (Number.isInteger(hr) && hr >= 30 && hr <= 220) {
+          currentHR = hr;
+          updateLiveMetrics();
+          updateDebugSummaryOnly();
+        }
       }
 
       function extractHeartRate(value, preferredOffset) {
@@ -831,6 +859,31 @@
           txtStatus.innerText = "Lese FTMS Service...";
           const service = await server.getPrimaryService(FTMS_SERVICE_UUID);
 
+          // Optionaler HR-Fallback: falls FTMS-Daten auf iOS unvollständig sind,
+          // versuchen wir die Heart-Rate-Characteristic direkt.
+          try {
+            const hrService = await server.getPrimaryService(
+              HEART_RATE_SERVICE_UUID,
+            );
+            heartRateChar = await hrService.getCharacteristic(
+              HEART_RATE_MEASUREMENT_CHAR_UUID,
+            );
+            await heartRateChar.startNotifications();
+            heartRateChar.removeEventListener(
+              "characteristicvaluechanged",
+              handleHeartRateMeasurement,
+            );
+            heartRateChar.addEventListener(
+              "characteristicvaluechanged",
+              handleHeartRateMeasurement,
+            );
+          } catch (hrErr) {
+            console.log(
+              "Heart Rate Service nicht verfügbar, nutze FTMS-HR:",
+              hrErr.message,
+            );
+          }
+
           txtStatus.innerText = "Verbinde Daten-Streaming...";
           treadmillDataChar = await service.getCharacteristic(
             TREADMILL_DATA_CHAR_UUID,
@@ -1006,7 +1059,8 @@
       }
 
       async function stopMachine() {
-        await sendFTMSCommand([0x06]);
+        // FTMS Stop/Pause Opcode ist 0x08, Parameter 0x01 = Stop.
+        await sendFTMSCommand([0x08, 0x01]);
       }
 
       async function stopTreadmillSafely() {
@@ -1067,6 +1121,8 @@
               appendTrackpointIfNeeded();
               checkIntervallProgress();
             }
+
+            updateDebugSummaryOnly();
           }, 1000);
           // Ersten Schritt direkt aktivieren
           await startStep(0);
