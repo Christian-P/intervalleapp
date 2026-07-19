@@ -364,6 +364,7 @@
     </div>
 
     <script>
+      const APP_VERSION = "2.0.1";
       const FTMS_SERVICE_UUID = 0x1826;
       const TREADMILL_DATA_CHAR_UUID = 0x2acd;
       const FITNESS_MACHINE_CONTROL_POINT_CHAR_UUID = 0x2ad9;
@@ -412,6 +413,10 @@
       const btnSaveTemplate = document.getElementById("btn-save-template");
       const templateList = document.getElementById("template-list");
       const TEMPLATE_STORAGE_KEY = "ftms-workout-templates";
+
+      if (debugOutput) {
+        debugOutput.innerText = `Version: ${APP_VERSION}\nDebug-Info: Warte auf Daten...`;
+      }
 
       function updateLiveMetrics() {
         document.getElementById("val-speed").innerText =
@@ -900,6 +905,7 @@
             .map((b) => b.toString(16).padStart(2, "0"))
             .join(" ");
           const parsedValues = [
+            `Version: ${APP_VERSION}`,
             `Flags: 0x${flags.toString(16)}`,
             `Bytes: ${bytes.join(" ")}`,
             `BytesHex: ${byteHex}`,
